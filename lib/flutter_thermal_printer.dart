@@ -24,4 +24,23 @@ class FlutterThermalPrinter {
     }
     return bluetoothPrinters;
   }
+
+  // This method checks if the printer is connected to any printer.
+  static Future<bool> isConnected() async {
+    try {
+      final isConnected = await _channel.invokeMethod("isConnected");
+      return isConnected;
+    } catch (e) {
+      log(e.toString());
+      return false;
+    }
+  }
+
+  static Future<void> disconnect() async {
+    try {
+      await _channel.invokeMethod("disconnect");
+    } catch (e) {
+      log(e.toString());
+    }
+  }
 }

@@ -11,6 +11,8 @@ class BluetoothPrinter {
     required this.printerId,
     required this.printerName,
   });
+  static const MethodChannel _channel =
+      MethodChannel('flutter_thermal_printer');
 
   factory BluetoothPrinter.fromJson(Map<String, dynamic> json) {
     return BluetoothPrinter(
@@ -27,17 +29,26 @@ class BluetoothPrinter {
   }
 
   Future<void> connect() async {
-    final bluetoothConnectPermission = Permission.bluetoothConnect;
-
-    if (await bluetoothConnectPermission.isGranted || await bluetoothConnectPermission.isLimited) {
-      const MethodChannel _channel = MethodChannel('flutter_thermal_printer');
+    const bluetoothConnectPermission = Permission.bluetoothConnect;
+    final status = await bluetoothConnectPermission.request();
+    if (status.isGranted || status.isLimited) {
       try {
-        await _channel.invokeMethod("connectToPrinterByAddress", 
-          {"printer_id": printerId}
-      );
+        await _channel.invokeMethod(
+            "connectToPrinterByAddress", {"printer_id": printerId});
       } catch (e) {
         log(e.toString());
       }
+    }
+  }
+
+  Future<bool> printString(String printableString) async {
+    try {
+      await _channel
+          .invokeMethod("printString", {"printable_string": printableString});
+      return true;
+    } catch (e) {
+      log(e.toString());
+      return false;
     }
   }
 

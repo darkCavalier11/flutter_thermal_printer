@@ -22,7 +22,7 @@ class FlutterThermalPrinterPlugin: FlutterPlugin, MethodCallHandler {
   /// This local reference serves to register the plugin with the Flutter Engine and unregister it
   /// when the Flutter Engine is detached from the Activity
   private lateinit var channel : MethodChannel
-  private lateinit var printer: EscPosPrinter
+  private var printer: EscPosPrinter? = null
 
   override fun onAttachedToEngine(@NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
     channel = MethodChannel(flutterPluginBinding.binaryMessenger, "flutter_thermal_printer")
@@ -48,9 +48,22 @@ class FlutterThermalPrinterPlugin: FlutterPlugin, MethodCallHandler {
       if (selectedPrinter != null) {
         printer = EscPosPrinter(selectedPrinter.connect(), 203, 48f, 32)
         // printing an empty line to make sure it is connected
-        printer.printFormattedText("[L]\n")
+        printer?.printFormattedText("[L]\n")
       } else {
         result.error("NOT FOUND", "Unable to connect to the printer with $address", "Error occured while connecting to the printer with address $address. Make sure printer is on, and paired with the device",)
+      }
+    } else if (call.method == "isConnected") {
+      result.success(printer != null)
+    } else if (call.method == "disconnect") {
+      printer?.disconnectPrinter()
+      printer = null
+    } else if (call.method == "printString") {
+      if (printer != null) {
+        val printableString = call.argument<String>("printable_string")
+        printer!!.printFormattedText(printableString)
+        result.success(true)
+      } else {
+        result.error("NO PRINTER FOUND", "connect to printer before print", "Try to connect to printer before printing.")
       }
     }
     else {
