@@ -1,12 +1,10 @@
 package com.example.flutter_thermal_printer
 
-import android.bluetooth.BluetoothAdapter
+import android.util.Log
 import androidx.annotation.NonNull
 import com.dantsu.escposprinter.EscPosPrinter
-import com.dantsu.escposprinter.connection.DeviceConnection
-import com.dantsu.escposprinter.connection.bluetooth.BluetoothConnection
 import com.dantsu.escposprinter.connection.bluetooth.BluetoothPrintersConnections
-import io.flutter.Log
+import com.example.flutter_thermal_printer.models.BluetoothPrinter
 
 
 import io.flutter.embedding.engine.plugins.FlutterPlugin
@@ -65,6 +63,10 @@ class FlutterThermalPrinterPlugin: FlutterPlugin, MethodCallHandler {
       } else {
         result.error("NO PRINTER FOUND", "connect to printer before print", "Try to connect to printer before printing.")
       }
+    } else if (call.method == "printReceipt") {
+      val printableReceipt = call.argument<String>("printable_receipt")
+      Log.d("PrintableRecipt", printableReceipt.toString())
+      result.success(true)
     }
     else {
       result.notImplemented()

@@ -52,6 +52,17 @@ class BluetoothPrinter {
     }
   }
 
+  Future<bool> printReceipt(PrintableReceipt receipt) async {
+    try {
+      await _channel.invokeMethod(
+          "printReceipt", {"printable_receipt": receipt.toJson().toString()});
+      return true;
+    } catch (e) {
+      log(e.toString());
+      return false;
+    }
+  }
+
   @override
   String toString() =>
       'BluetoothPrinter(printerId: $printerId, printerName: $printerName)';

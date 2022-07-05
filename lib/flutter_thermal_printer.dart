@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_thermal_printer/models/bluetooth_printer.dart';
 
 export 'models/bluetooth_printer.dart';
+export 'models/printable_receipt.dart';
 
 class FlutterThermalPrinter {
   FlutterThermalPrinter._();

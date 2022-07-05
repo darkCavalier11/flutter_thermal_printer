@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
@@ -58,11 +59,55 @@ class _MyAppState extends State<MyApp> {
           child: Text(_pairedDevices.toString()),
         ),
         floatingActionButton: FloatingActionButton(
-          onPressed: () {
-            _pairedDevices.first.printString("printableString");
+          onPressed: () async {
+            _pairedDevices.first.connect();
+            final p = PrintableReceipt.fromJson(jsonDecode(json));
+            log(p.toJson().toString());
+            _pairedDevices.first
+                .printReceipt(PrintableReceipt.fromJson(jsonDecode(json)));
           },
         ),
       ),
     );
   }
 }
+
+var json = """
+    {
+        "printer_id": "66:12:A5:6B:97:46",
+        "order_id": "b0869d",
+        "datetime": "27/06/2022 15:06PM UTC",
+        "delivery_type": "SMART_BOX_DELIVERY",
+        "items": [
+            {
+                "name": "Kalakand",
+                "quantity": 2,
+                "price": 28000,
+                "total": 56000
+            }
+        ],
+        "other_charges": [
+            {
+                "name": "PACKING",
+                "value": 400,
+                "merchant_added": false,
+                "breakup": {}
+            },
+            {
+                "name": "EXTRA",
+                "value": 1000,
+                "merchant_added": false,
+                "breakup": {}
+            },
+            {
+                "name": "TAX",
+                "value": 2870,
+                "merchant_added": false,
+                "breakup": {}
+            }
+        ],
+        "discount": 0,
+        "order_total": 60270,
+        "address": "Pretty Address, eSamudaay TESTBOX"
+    }
+""";
