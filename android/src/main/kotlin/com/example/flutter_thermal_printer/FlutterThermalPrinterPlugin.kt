@@ -4,6 +4,7 @@ import android.bluetooth.BluetoothAdapter
 import androidx.annotation.NonNull
 import com.dantsu.escposprinter.EscPosPrinter
 import com.dantsu.escposprinter.connection.DeviceConnection
+import com.dantsu.escposprinter.connection.bluetooth.BluetoothConnection
 import com.dantsu.escposprinter.connection.bluetooth.BluetoothPrintersConnections
 import io.flutter.Log
 
@@ -21,6 +22,7 @@ class FlutterThermalPrinterPlugin: FlutterPlugin, MethodCallHandler {
   /// This local reference serves to register the plugin with the Flutter Engine and unregister it
   /// when the Flutter Engine is detached from the Activity
   private lateinit var channel : MethodChannel
+  private lateinit var printer: EscPosPrinter
 
   override fun onAttachedToEngine(@NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
     channel = MethodChannel(flutterPluginBinding.binaryMessenger, "flutter_thermal_printer")
@@ -28,11 +30,9 @@ class FlutterThermalPrinterPlugin: FlutterPlugin, MethodCallHandler {
   }
 
   override fun onMethodCall(@NonNull call: MethodCall, @NonNull result: Result) {
-
-
     if (call.method == "getAllPairedDevices") {
-      var pairedPrinters = BluetoothPrintersConnections().list
-      var bluetoothPrintersMap = mutableListOf<Map<String, Any>>()
+      val pairedPrinters = BluetoothPrintersConnections().list
+      val bluetoothPrintersMap = mutableListOf<Map<String, Any>>()
       if (pairedPrinters != null && pairedPrinters.isNotEmpty()) {
         for (p in BluetoothPrintersConnections().list!!) {
           bluetoothPrintersMap.add(BluetoothPrinter(p.device.address, p.device.name).toJson())
@@ -42,7 +42,18 @@ class FlutterThermalPrinterPlugin: FlutterPlugin, MethodCallHandler {
       else {
         result.success(listOf<BluetoothPrinter>())
       }
-    } else {
+    } else if (call.method == "connectToPrinterByAddress") {
+      val address = call.argument<String>("printer_id")
+      val selectedPrinter = BluetoothPrintersConnections().list?.first { printer -> printer.device.address == address }
+      if (selectedPrinter != null) {
+        printer = EscPosPrinter(selectedPrinter.connect(), 203, 48f, 32)
+        // printing an empty line to make sure it is connected
+        printer.printFormattedText("[L]\n")
+      } else {
+        result.error("NOT FOUND", "Unable to connect to the printer with $address", "Error occured while connecting to the printer with address $address. Make sure printer is on, and paired with the device",)
+      }
+    }
+    else {
       result.notImplemented()
     }
   }

@@ -8,8 +8,11 @@ import 'package:flutter_thermal_printer/models/bluetooth_printer.dart';
 export 'models/bluetooth_printer.dart';
 
 class FlutterThermalPrinter {
+  FlutterThermalPrinter._();
   static const MethodChannel _channel =
       MethodChannel('flutter_thermal_printer');
+
+  static FlutterThermalPrinter instance = FlutterThermalPrinter._();
 
   static Future<List<BluetoothPrinter>> get getAllPairedDevices async {
     final availableDevicesMap =

@@ -1,7 +1,7 @@
 name: flutter_thermal_printer
 description: A new flutter plugin project.
 version: 0.0.1
-homepage:
+homepage: https://
 
 environment:
   sdk: ">=2.16.2 <3.0.0"
@@ -10,6 +10,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  permission_handler: ^10.0.0
 
 dev_dependencies:
   flutter_test:
