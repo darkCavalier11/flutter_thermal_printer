@@ -4,6 +4,7 @@ import 'dart:developer';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_thermal_printer/models/bluetooth_printer.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 export 'models/bluetooth_printer.dart';
 export 'models/printable_receipt.dart';
@@ -24,6 +25,19 @@ class FlutterThermalPrinter {
           .add(BluetoothPrinter.fromJson(Map<String, dynamic>.from(printer)));
     }
     return bluetoothPrinters;
+  }
+
+  static Future<void> connectToPrinterByAddress(String address) async {
+    const bluetoothConnectPermission = Permission.bluetoothConnect;
+    final status = await bluetoothConnectPermission.request();
+    if (status.isGranted || status.isLimited) {
+      try {
+        await _channel
+            .invokeMethod("connectToPrinterByAddress", {"printer_id": address});
+      } catch (e) {
+        log(e.toString());
+      }
+    }
   }
 
   // This method checks if the printer is connected to any printer.

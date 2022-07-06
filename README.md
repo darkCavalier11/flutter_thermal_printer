@@ -1,15 +1,12 @@
 # flutter_thermal_printer
 
-A new flutter plugin project.
+Plugin to connect and print receipt in thermal printer.
 
-## Getting Started
+## Methods
+`getAllPairedDevices` -> get all the paired printers earlier. A printer needs to be paired to be connected and print receipt
 
-This project is a starting point for a Flutter
-[plug-in package](https://flutter.dev/developing-packages/),
-a specialized package that includes platform-specific implementation code for
-Android and/or iOS.
+`connectToPrinterByAddress(String address)` used to connect to the printer having the given address.
 
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+`isConnected()` returns if a printer is connected.
 
+`disconnect()` disconnect to printer if a printer is connected.
