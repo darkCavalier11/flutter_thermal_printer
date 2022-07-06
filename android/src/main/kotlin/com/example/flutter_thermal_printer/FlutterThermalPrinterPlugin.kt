@@ -91,31 +91,12 @@ class FlutterThermalPrinterPlugin: FlutterPlugin, MethodCallHandler {
       if (selectedPrinter != null) {
         printer = EscPosPrinter(selectedPrinter.connect(), 203, 48f, 32)
         // printing an empty line to make sure it is connected
-        printer?.printFormattedText("[L]\n")
       }
     }
-    var printableString =
-      "[C]<font size='big'>${printableReceipt.orderId}</font>\n" +
-              "[C]<b>${printableReceipt.datetime}</b>\n" +
-              "[C]<b>Sweet Shop</b>\n" +
-              "[C]--------------------------------\n" +
-              "<b>Items       Qty   Price  Total  </b>\n" +
-              "[C]--------------------------------\n"
-    for (orderItem in printableReceipt.items) {
-      printableString += addOrderItemToPrintableString(orderItem)
-    }
-    for (charge in printableReceipt.otherCharges) {
-      printableString += "[R]${charge.name} ${charge.value}\n"
-    }
-    printableString += "[R]--------------------------------\n"
-    printableString += "[R]Rs. ${printableReceipt.orderTotal}\n"
-    printableString += "[C]--------------------------------\n"
-    printableString += "<b>${printableReceipt.deliveryType}</b>\n"
-    printableString += "[C]--------------------------------\n"
-    printableString += "[L]<font size='big'>${printableReceipt.address}</font>"
-    printer?.printFormattedText(printableString)
+    printer?.printFormattedText(printableReceipt.generatePrintableString())
     result.success(true)
   }
+
 
   private fun addOrderItemToPrintableString(orderItem: Item): String {
     val startIndexed = mutableListOf<Int>(0,0,0,0)
