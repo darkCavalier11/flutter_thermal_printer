@@ -1,48 +1,35 @@
 package com.example.flutter_thermal_printer.models
+
 import com.google.gson.annotations.SerializedName
 
 
-data class PrintableReceipt(
-    @SerializedName("address")
+class PrintableReceipt(
     val address: String,
-    @SerializedName("datetime")
+    @SerializedName("date_time")
     val datetime: String,
     @SerializedName("delivery_type")
     val deliveryType: String,
-    @SerializedName("discount")
-    val discount: Int,
-    @SerializedName("items")
+    val discount: Double,
     val items: List<Item>,
     @SerializedName("order_id")
     val orderId: String,
     @SerializedName("order_total")
-    val orderTotal: Int,
+    val orderTotal: Double,
     @SerializedName("other_charges")
     val otherCharges: List<OtherCharge>,
     @SerializedName("printer_id")
     val printerId: String
 )
 
-data class Item(
-    @SerializedName("name")
+class Item(
     val name: String,
-    @SerializedName("price")
-    val price: Int,
-    @SerializedName("quantity")
+    val price: Double,
     val quantity: Int,
-    @SerializedName("total")
-    val total: Int
+    val total: Double
 )
 
 data class OtherCharge(
-    @SerializedName("breakup")
-    val breakup: Breakup,
-    @SerializedName("merchant_added")
-    val merchantAdded: Boolean,
-    @SerializedName("name")
     val name: String,
-    @SerializedName("value")
-    val value: Int
+    val value: Double,
 )
 
-class Breakup

@@ -61,11 +61,9 @@ class _MyAppState extends State<MyApp> {
         floatingActionButton: FloatingActionButton(
           onPressed: () async {
             _pairedDevices.first.connect();
-            final p = PrintableReceipt.fromJson(jsonDecode(json));
-            log(p.toJson().toString());
-            _pairedDevices.first
-                .printReceipt(PrintableReceipt.fromJson(jsonDecode(json)));
+            log('message');
           },
+          child: const Icon(Icons.print),
         ),
       ),
     );

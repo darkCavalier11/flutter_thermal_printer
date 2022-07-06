@@ -55,7 +55,7 @@ class BluetoothPrinter {
   Future<bool> printReceipt(PrintableReceipt receipt) async {
     try {
       await _channel.invokeMethod(
-          "printReceipt", {"printable_receipt": receipt.toJson().toString()});
+          "printReceipt", {"printable_receipt": receipt.toJson()});
       return true;
     } catch (e) {
       log(e.toString());
