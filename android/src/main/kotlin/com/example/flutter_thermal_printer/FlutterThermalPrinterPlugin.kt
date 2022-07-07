@@ -64,11 +64,21 @@ class FlutterThermalPrinterPlugin: FlutterPlugin, MethodCallHandler {
   }
 
   private fun isConnected(@NonNull call: MethodCall, @NonNull result: Result) {
-    result.success(printer != null)
+    val address = call.argument<String>("address")
+    val selectedPrinter = BluetoothPrintersConnections().list?.first { printer -> printer.device.address == address }
+    if (selectedPrinter == null) {
+      return result.success(false)
+    }
+    result.success(selectedPrinter.isConnected)
   }
 
-  private fun disconnect() {
-    printer?.disconnectPrinter()
+  private fun disconnect(@NonNull call: MethodCall, @NonNull result: Result) {
+    val address = call.argument<String>("address")
+    val selectedPrinter = BluetoothPrintersConnections().list?.first { printer -> printer.device.address == address }
+    if (selectedPrinter == null) {
+      return
+    }
+    selectedPrinter.disconnect()
     printer = null
   }
 
@@ -101,7 +111,7 @@ class FlutterThermalPrinterPlugin: FlutterPlugin, MethodCallHandler {
       "getAllPairedDevices" -> getAllPairedDevices(call, result)
       "connectToPrinterByAddress" -> connectToPrinterByAddress(call, result)
       "isConnected" -> isConnected(call, result)
-      "disconnect" -> disconnect()
+      "disconnect" -> disconnect(call, result)
       "printString" -> printString(call, result)
       "printReceipt" -> printReceipt(call, result)
       else -> result.notImplemented()

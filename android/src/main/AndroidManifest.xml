@@ -1,12 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
   package="com.example.flutter_thermal_printer">
-    <application>
-        <service
-            android:name="com.example.flutter_thermal_printer.AppFirebaseMessagingService"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="com.google.firebase.MESSAGING_EVENT" />
-            </intent-filter>
-        </service>
-    </application>
+
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
 </manifest>

@@ -63,6 +63,26 @@ class BluetoothPrinter {
     }
   }
 
+  // This method checks if the printer is connected to any printer.
+  Future<bool> isConnected() async {
+    try {
+      final isConnected =
+          await _channel.invokeMethod("isConnected", {"address": printerId});
+      return isConnected;
+    } catch (e) {
+      log(e.toString());
+      return false;
+    }
+  }
+
+  Future<void> disconnect() async {
+    try {
+      await _channel.invokeMethod("disconnect", {"address": printerId});
+    } catch (e) {
+      log(e.toString());
+    }
+  }
+
   @override
   String toString() =>
       'BluetoothPrinter(printerId: $printerId, printerName: $printerName)';
