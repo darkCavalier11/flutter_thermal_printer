@@ -90,53 +90,10 @@ class FlutterThermalPrinterPlugin: FlutterPlugin, MethodCallHandler {
       val selectedPrinter = BluetoothPrintersConnections().list?.first { printer -> printer.device.address == printableReceipt.printerId }
       if (selectedPrinter != null) {
         printer = EscPosPrinter(selectedPrinter.connect(), 203, 48f, 32)
-        // printing an empty line to make sure it is connected
       }
     }
     printer?.printFormattedText(printableReceipt.generatePrintableString())
     result.success(true)
-  }
-
-
-  private fun addOrderItemToPrintableString(orderItem: Item): String {
-    val startIndexed = mutableListOf<Int>(0,0,0,0)
-    var printableOrderItemString = ""
-    while (true) {
-      if (startIndexed[0] == orderItem.name.length &&
-        startIndexed[1] == orderItem.quantity.toString().length &&
-        startIndexed[2] == orderItem.price.toString().length &&
-        startIndexed[3] == orderItem.total.toString().length) break;
-      val endIndex1 = min(
-        startIndexed[0] + ITEM_NAME_WIDTH - 1,
-        orderItem.name.length);
-      val name = orderItem.name.substring(startIndexed[0], endIndex1);
-      startIndexed[0] = endIndex1;
-      printableOrderItemString += name + " " + " ".repeat (ITEM_NAME_WIDTH - name.length - 1)
-
-      val endIndex2 = min(
-        startIndexed[1] + ITEM_QTY_WIDTH - 1,
-        orderItem.quantity.toString().length);
-      val quantity = orderItem.quantity.toString().substring(startIndexed[1], endIndex2);
-      startIndexed[1] = endIndex2;
-      printableOrderItemString += quantity + " " + " ".repeat (ITEM_QTY_WIDTH - quantity.length - 1)
-
-      val endIndex3 = min(
-        startIndexed[2] + ITEM_PRICE_WIDTH - 1,
-        orderItem.price.toString().length);
-      val price = orderItem.price.toString().substring(startIndexed[2], endIndex3);
-      startIndexed[2] = endIndex3;
-      printableOrderItemString += price + " " + " ".repeat (ITEM_PRICE_WIDTH - price.length - 1)
-
-      val endIndex4 = min(
-        startIndexed[3] + ITEM_TOTAL_WIDTH - 1,
-        orderItem.total.toString().length);
-      val total = orderItem.total.toString().substring(startIndexed[3], endIndex4);
-      startIndexed[3] = endIndex4;
-      printableOrderItemString += total + " " + " ".repeat (ITEM_TOTAL_WIDTH - price.length - 1)
-      printableOrderItemString += '\n'
-    }
-    printableOrderItemString += "[C]--------------------------------\n"
-    return printableOrderItemString
   }
 
   override fun onMethodCall(@NonNull call: MethodCall, @NonNull result: Result) {
