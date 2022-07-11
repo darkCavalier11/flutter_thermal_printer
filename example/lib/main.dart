@@ -60,8 +60,11 @@ class _MyAppState extends State<MyApp> {
         ),
         floatingActionButton: FloatingActionButton(
           onPressed: () async {
-            final p = await FlutterThermalPrinter.connectToPrinterByAddress(
-                "DC:0D:30:4D:1E:0C");
+            final p = await FlutterThermalPrinter.getAllPairedDevices;
+            // p[0].connect();
+            // await Future.delayed(Duration(seconds: 5));
+            final isC = await p[0].isConnected();
+            log(isC.toString());
           },
           child: const Icon(Icons.print),
         ),

@@ -26,6 +26,7 @@ class FlutterThermalPrinterPlugin: FlutterPlugin, MethodCallHandler {
   /// when the Flutter Engine is detached from the Activity
   private lateinit var channel : MethodChannel
   private var printer: EscPosPrinter? = null
+  private var connectedPrinterAddress: String? = null
   private val PAPER_WIDTH = 32;
   private val ITEM_NAME_WIDTH = 12;
   private val ITEM_QTY_WIDTH = 6;
@@ -56,6 +57,7 @@ class FlutterThermalPrinterPlugin: FlutterPlugin, MethodCallHandler {
     val selectedPrinter = BluetoothPrintersConnections().list?.first { printer -> printer.device.address == address }
     if (selectedPrinter != null) {
       printer = EscPosPrinter(selectedPrinter.connect(), 203, 48f, 32)
+      connectedPrinterAddress = address
       // printing an empty line to make sure it is connected
       printer?.printFormattedText("[L]\n")
       val connectedPrinter = BluetoothPrinter(selectedPrinter.device.address, selectedPrinter.device.name)
@@ -67,11 +69,10 @@ class FlutterThermalPrinterPlugin: FlutterPlugin, MethodCallHandler {
 
   private fun isConnected(@NonNull call: MethodCall, @NonNull result: Result) {
     val address = call.argument<String>("address")
-    val selectedPrinter = BluetoothPrintersConnections().list?.first { printer -> printer.device.address == address }
-    if (selectedPrinter == null) {
+    if (printer == null) {
       return result.success(false)
     }
-    result.success(selectedPrinter.isConnected)
+    result.success(connectedPrinterAddress == address)
   }
 
   private fun disconnect(@NonNull call: MethodCall, @NonNull result: Result) {
@@ -82,6 +83,7 @@ class FlutterThermalPrinterPlugin: FlutterPlugin, MethodCallHandler {
     }
     selectedPrinter.disconnect()
     printer = null
+    connectedPrinterAddress = null
   }
 
   private fun printString(@NonNull call: MethodCall, @NonNull result: Result) {
