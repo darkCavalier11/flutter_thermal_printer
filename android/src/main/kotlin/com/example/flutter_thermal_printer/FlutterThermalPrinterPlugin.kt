@@ -58,6 +58,8 @@ class FlutterThermalPrinterPlugin: FlutterPlugin, MethodCallHandler {
       printer = EscPosPrinter(selectedPrinter.connect(), 203, 48f, 32)
       // printing an empty line to make sure it is connected
       printer?.printFormattedText("[L]\n")
+      val connectedPrinter = BluetoothPrinter(selectedPrinter.device.address, selectedPrinter.device.name)
+      result.success(connectedPrinter.toJson())
     } else {
       result.error("NOT FOUND", "Unable to connect to the printer with $address", "Error occured while connecting to the printer with address $address. Make sure printer is on, and paired with the device",)
     }
