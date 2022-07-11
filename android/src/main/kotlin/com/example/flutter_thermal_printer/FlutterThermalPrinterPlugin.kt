@@ -56,7 +56,7 @@ class FlutterThermalPrinterPlugin: FlutterPlugin, MethodCallHandler {
     val address = call.argument<String>("printer_id")
     val selectedPrinter = BluetoothPrintersConnections().list?.first { printer -> printer.device.address == address }
     if (selectedPrinter != null) {
-      printer = EscPosPrinter(selectedPrinter.connect(), 203, 48f, 32)
+      printer = EscPosPrinter(selectedPrinter, 203, 48f, 32)
       connectedPrinterAddress = address
       // printing an empty line to make sure it is connected
       printer?.printFormattedText("[L]\n")

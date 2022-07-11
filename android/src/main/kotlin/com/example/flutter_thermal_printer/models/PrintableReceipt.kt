@@ -62,11 +62,6 @@ class PrintableReceipt(
             val endIndex1 = min(
                 startIndexed[0] + ITEM_NAME_WIDTH - 1,
                 orderItem.name.length);
-            Log.d("Taghaga", ITEM_NAME_WIDTH.toString())
-            Log.d("Taghaga", orderItem.name.length.toString())
-
-            Log.d("Taghaga", startIndexed[0].toString())
-            Log.d("Taghaga", endIndex1.toString())
             val name = orderItem.name.substring(startIndexed[0], endIndex1);
 
 

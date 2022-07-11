@@ -62,8 +62,8 @@ class _MyAppState extends State<MyApp> {
           onPressed: () async {
             final p = await FlutterThermalPrinter.getAllPairedDevices;
             p[0].connect();
-            await Future.delayed(Duration(seconds: 5));
-            p[0].printReceipt(PrintableReceipt.fromJson(jsonDecode(json)));
+            // await Future.delayed(Duration(seconds: 5));
+            // p[0].printReceipt(PrintableReceipt.fromJson(jsonDecode(json)));
           },
           child: const Icon(Icons.print),
         ),
