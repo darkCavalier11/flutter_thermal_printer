@@ -12,6 +12,5 @@ import io.flutter.plugins.GeneratedPluginRegistrant
 class MainActivity: FlutterActivity() {
     override fun onCreate(savedInstanceState: Bundle?, persistentState: PersistableBundle?) {
         super.onCreate(savedInstanceState, persistentState)
-        Log.d("Cutu", "HelloWorld")
     }
 }
