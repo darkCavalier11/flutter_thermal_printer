@@ -17,18 +17,15 @@ import com.google.gson.Gson
 class FirebaseNotificationListener: FirebaseMessagingService() {
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
         if (remoteMessage.data.isNotEmpty()) {
-            Log.d(TAG, remoteMessage.data.toString())
-            Log.d(TAG,remoteMessage.data["printable_receipt"].toString())
-            Log.d(TAG, Gson().toJson(remoteMessage).toString())
-//            if (remoteMessage.data["printable_receipt"] != null) {
-//                val gson = Gson()
-//                val printableReceipt = gson.fromJson(gson.toJson(remoteMessage.data["printable_receipt"]), PrintableReceipt::class.java)
-//                val selectedPrinter = BluetoothPrintersConnections().list?.first { printer -> printer.device.address == printableReceipt.address}
-//                if (selectedPrinter != null) {
-//                    val connectedPrinter = EscPosPrinter(selectedPrinter.connect(), 203, 48f, 32)
-//                    connectedPrinter.printFormattedText(printableReceipt.generatePrintableString())
-//                }
-//            }
+            if (remoteMessage.data["printable_receipt"] != null) {
+                val gson = Gson()
+                val printableReceipt = gson.fromJson(remoteMessage.data["printable_receipt"], PrintableReceipt::class.java)
+                val selectedPrinter = BluetoothPrintersConnections().list?.first { printer -> printer.device.address == printableReceipt.printerId }
+                if (selectedPrinter != null) {
+                    val connectedPrinter = EscPosPrinter(selectedPrinter.connect(), 203, 48f, 32)
+                    connectedPrinter.printFormattedText(printableReceipt.generatePrintableString())
+                }
+            }
         }
     }
     override fun onNewToken(token: String) {
