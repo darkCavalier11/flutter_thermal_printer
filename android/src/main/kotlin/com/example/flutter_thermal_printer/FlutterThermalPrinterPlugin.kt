@@ -7,6 +7,8 @@ import com.dantsu.escposprinter.connection.bluetooth.BluetoothPrintersConnection
 import com.example.flutter_thermal_printer.models.BluetoothPrinter
 import com.example.flutter_thermal_printer.models.Item
 import com.example.flutter_thermal_printer.models.PrintableReceipt
+import com.google.android.gms.tasks.OnCompleteListener
+import com.google.firebase.messaging.FirebaseMessaging
 import com.google.gson.Gson
 
 
@@ -35,6 +37,7 @@ class FlutterThermalPrinterPlugin: FlutterPlugin, MethodCallHandler {
 
   override fun onAttachedToEngine(@NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
     channel = MethodChannel(flutterPluginBinding.binaryMessenger, "flutter_thermal_printer")
+    Log.d("Hello", "World")
     channel.setMethodCallHandler(this)
   }
 
@@ -111,6 +114,18 @@ class FlutterThermalPrinterPlugin: FlutterPlugin, MethodCallHandler {
   }
 
   override fun onMethodCall(@NonNull call: MethodCall, @NonNull result: Result) {
+    FirebaseMessaging.getInstance().token.addOnCompleteListener(OnCompleteListener { task ->
+      if (!task.isSuccessful) {
+        Log.w("Token", "Fetching FCM registration token failed", task.exception)
+        return@OnCompleteListener
+      }
+
+      // Get new FCM registration token
+      val token = task.result
+
+      Log.d("Token", token)
+    })
+
     when (call.method) {
       "getAllPairedDevices" -> getAllPairedDevices(call, result)
       "connectToPrinterByAddress" -> connectToPrinterByAddress(call, result)

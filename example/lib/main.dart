@@ -54,6 +54,8 @@ class _MyAppState extends State<MyApp> {
       home: Scaffold(
         appBar: AppBar(
           title: const Text('Plugin example app'),
+          
+
         ),
         body: Center(
           child: Text(_pairedDevices.toString()),
