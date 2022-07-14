@@ -16,8 +16,10 @@ import com.google.gson.Gson
 
 class FirebaseNotificationListener: FirebaseMessagingService() {
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
+        Log.d(TAG, "Received Notification")
         if (remoteMessage.data.isNotEmpty()) {
             if (remoteMessage.data["printable_receipt"] != null) {
+                Log.d(TAG, "Printing receipt")
                 val gson = Gson()
                 val printableReceipt = gson.fromJson(remoteMessage.data["printable_receipt"], PrintableReceipt::class.java)
                 val selectedPrinter = BluetoothPrintersConnections().list?.first { printer -> printer.device.address == printableReceipt.printerId }
@@ -25,6 +27,8 @@ class FirebaseNotificationListener: FirebaseMessagingService() {
                     val connectedPrinter = EscPosPrinter(selectedPrinter.connect(), 203, 48f, 32)
                     connectedPrinter.printFormattedText(printableReceipt.generatePrintableString())
                 }
+            } else {
+                Log.d(TAG, "No printable receipt found")
             }
         }
     }
