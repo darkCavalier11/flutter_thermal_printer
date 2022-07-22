@@ -36,7 +36,6 @@ class FirebaseNotificationListener: FirebaseMessagingService() {
         super.onNewToken(token)
     }
     companion object {
-
         private const val TAG = "NotificationListener"
     }
 }

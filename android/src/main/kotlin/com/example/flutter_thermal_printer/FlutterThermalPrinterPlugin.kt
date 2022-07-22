@@ -1,5 +1,6 @@
 package com.example.flutter_thermal_printer
 
+import android.app.Activity
 import android.util.Log
 import androidx.annotation.NonNull
 import com.dantsu.escposprinter.EscPosPrinter
@@ -13,6 +14,8 @@ import com.google.gson.Gson
 
 
 import io.flutter.embedding.engine.plugins.FlutterPlugin
+import io.flutter.embedding.engine.plugins.activity.ActivityAware
+import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
@@ -21,7 +24,7 @@ import org.json.JSONObject
 import java.lang.Integer.min
 
 /** FlutterThermalPrinterPlugin */
-class FlutterThermalPrinterPlugin: FlutterPlugin, MethodCallHandler {
+class FlutterThermalPrinterPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
   /// The MethodChannel that will the communication between Flutter and native Android
   ///
   /// This local reference serves to register the plugin with the Flutter Engine and unregister it
@@ -29,15 +32,10 @@ class FlutterThermalPrinterPlugin: FlutterPlugin, MethodCallHandler {
   private lateinit var channel : MethodChannel
   private var printer: EscPosPrinter? = null
   private var connectedPrinterAddress: String? = null
-  private val PAPER_WIDTH = 32;
-  private val ITEM_NAME_WIDTH = 12;
-  private val ITEM_QTY_WIDTH = 6;
-  private val ITEM_PRICE_WIDTH = 7;
-  private val ITEM_TOTAL_WIDTH = 7;
+  private var activity: Activity? = null
 
   override fun onAttachedToEngine(@NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
     channel = MethodChannel(flutterPluginBinding.binaryMessenger, "flutter_thermal_printer")
-    Log.d("Hello", "World")
     channel.setMethodCallHandler(this)
   }
 
@@ -114,18 +112,7 @@ class FlutterThermalPrinterPlugin: FlutterPlugin, MethodCallHandler {
   }
 
   override fun onMethodCall(@NonNull call: MethodCall, @NonNull result: Result) {
-    FirebaseMessaging.getInstance().token.addOnCompleteListener(OnCompleteListener { task ->
-      if (!task.isSuccessful) {
-        Log.w("Token", "Fetching FCM registration token failed", task.exception)
-        return@OnCompleteListener
-      }
-
-      // Get new FCM registration token
-      val token = task.result
-
-      Log.d("Token", token)
-    })
-
+    PermissionUtils.askForPermissions(activity!!)
     when (call.method) {
       "getAllPairedDevices" -> getAllPairedDevices(call, result)
       "connectToPrinterByAddress" -> connectToPrinterByAddress(call, result)
@@ -139,6 +126,22 @@ class FlutterThermalPrinterPlugin: FlutterPlugin, MethodCallHandler {
 
   override fun onDetachedFromEngine(@NonNull binding: FlutterPlugin.FlutterPluginBinding) {
     channel.setMethodCallHandler(null)
+  }
+
+  override fun onAttachedToActivity(binding: ActivityPluginBinding) {
+    activity = binding.activity
+  }
+
+  override fun onDetachedFromActivityForConfigChanges() {
+    activity = null
+  }
+
+  override fun onReattachedToActivityForConfigChanges(binding: ActivityPluginBinding) {
+    activity = binding.activity
+  }
+
+  override fun onDetachedFromActivity() {
+    activity = null
   }
 
 }
