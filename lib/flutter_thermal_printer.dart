@@ -16,6 +16,14 @@ class FlutterThermalPrinter {
 
   static FlutterThermalPrinter instance = FlutterThermalPrinter._();
 
+  static Future<void> initialise() async {
+    try {
+      _channel.invokeMapMethod('initialise');
+    } catch (err) {
+      log(err.toString());
+    }
+  }
+
   static Future<List<BluetoothPrinter>> get getAllPairedDevices async {
     final availableDevicesMap =
         await _channel.invokeMethod("getAllPairedDevices");

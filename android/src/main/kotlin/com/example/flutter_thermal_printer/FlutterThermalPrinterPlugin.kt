@@ -1,8 +1,17 @@
 package com.example.flutter_thermal_printer
 
 import android.app.Activity
+import android.bluetooth.BluetoothAdapter
+import android.bluetooth.BluetoothManager
+import android.content.Context
+import android.content.Intent
+import android.os.Build
 import android.util.Log
+import android.widget.Toast
 import androidx.annotation.NonNull
+import androidx.annotation.RequiresApi
+import androidx.core.app.ActivityCompat.startActivityForResult
+import androidx.core.content.ContextCompat.getSystemService
 import com.dantsu.escposprinter.EscPosPrinter
 import com.dantsu.escposprinter.connection.bluetooth.BluetoothPrintersConnections
 import com.example.flutter_thermal_printer.models.BluetoothPrinter
@@ -33,10 +42,28 @@ class FlutterThermalPrinterPlugin: FlutterPlugin, MethodCallHandler, ActivityAwa
   private var printer: EscPosPrinter? = null
   private var connectedPrinterAddress: String? = null
   private var activity: Activity? = null
+  private lateinit var context: Context
 
   override fun onAttachedToEngine(@NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
     channel = MethodChannel(flutterPluginBinding.binaryMessenger, "flutter_thermal_printer")
     channel.setMethodCallHandler(this)
+    context = flutterPluginBinding.applicationContext
+  }
+
+  @RequiresApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
+  private fun initialise() {
+    if (activity != null) {
+      PermissionUtils.askForPermissions(activity!!)
+    }
+    val bluetoothManager: BluetoothManager? = getSystemService(context, BluetoothManager::class.java)
+    val bluetoothAdapter: BluetoothAdapter? = bluetoothManager?.adapter
+    if (bluetoothAdapter == null) {
+      Toast.makeText(context, "Bluetooth adapter not found", Toast.LENGTH_SHORT).show()
+    } else {
+      val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
+      startActivityForResult(activity!!,  enableBtIntent, 1, null)
+    }
+
   }
 
   private fun getAllPairedDevices(@NonNull call: MethodCall, @NonNull result: Result) {
@@ -111,9 +138,11 @@ class FlutterThermalPrinterPlugin: FlutterPlugin, MethodCallHandler, ActivityAwa
     result.success(true)
   }
 
+  @RequiresApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
   override fun onMethodCall(@NonNull call: MethodCall, @NonNull result: Result) {
     PermissionUtils.askForPermissions(activity!!)
     when (call.method) {
+      "initialise" -> initialise()
       "getAllPairedDevices" -> getAllPairedDevices(call, result)
       "connectToPrinterByAddress" -> connectToPrinterByAddress(call, result)
       "isConnected" -> isConnected(call, result)
