@@ -17,8 +17,6 @@ import com.dantsu.escposprinter.connection.bluetooth.BluetoothPrintersConnection
 import com.example.flutter_thermal_printer.models.BluetoothPrinter
 import com.example.flutter_thermal_printer.models.Item
 import com.example.flutter_thermal_printer.models.PrintableReceipt
-import com.google.android.gms.tasks.OnCompleteListener
-import com.google.firebase.messaging.FirebaseMessaging
 import com.google.gson.Gson
 
 
