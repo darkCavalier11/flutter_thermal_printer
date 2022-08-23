@@ -7,11 +7,10 @@ import android.os.Build
 import android.util.Log
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import com.google.firebase.messaging.Constants.MessageNotificationKeys.TAG
 
 object PermissionUtils {
     fun askForPermissions(activity: Activity) {
-        Log.d(TAG, "Asking Permission")
+        Log.d("Bluetooth: ", "Asking Permission")
         val permissionsToAsk: MutableList<String> = ArrayList()
         val requestResult = 0
         if (ContextCompat.checkSelfPermission(

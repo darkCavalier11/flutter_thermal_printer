@@ -15,7 +15,7 @@ import androidx.core.content.ContextCompat.getSystemService
 import com.dantsu.escposprinter.EscPosPrinter
 import com.dantsu.escposprinter.connection.bluetooth.BluetoothPrintersConnections
 import com.example.flutter_thermal_printer.models.BluetoothPrinter
-import com.example.flutter_thermal_printer.models.Item
+import com.example.flutter_thermal_printer.models.CartItem
 import com.example.flutter_thermal_printer.models.PrintableReceipt
 import com.google.gson.Gson
 
