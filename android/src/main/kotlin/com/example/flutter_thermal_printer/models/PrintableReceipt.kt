@@ -12,7 +12,7 @@ class PrintableReceipt(
     @SerializedName("delivery_type")
     val deliveryType: String,
     val discount: Double,
-    val items: List<Item>,
+    val items: List<CartItem>,
     @SerializedName("order_id")
     val orderId: String,
     @SerializedName("order_total")
@@ -20,16 +20,17 @@ class PrintableReceipt(
     @SerializedName("other_charges")
     val otherCharges: List<OtherCharge>,
     @SerializedName("printer_id")
-    val printerId: String
+    val printerId: String,
+    @SerializedName("business_name")
+    val businessName: String,
 
-
-) {
+    ) {
 
     public fun generatePrintableString(): String {
         var printableString =
             "[C]<font size='big'>${orderId}</font>\n" +
                     "[C]<b>${datetime}</b>\n" +
-                    "[C]<b>Sweet Shop</b>\n" +
+                    "[C]<b>${businessName}</b>\n" +
                     "[C]--------------------------------\n" +
                     "<b>Items       Qty   Price  Total  </b>\n" +
                     "[C]--------------------------------\n"
@@ -47,7 +48,7 @@ class PrintableReceipt(
         printableString += "[L]<font size='big'>${address}</font>"
         return printableString
     }
-    private fun addOrderItemToPrintableString(orderItem: Item): String {
+    private fun addOrderItemToPrintableString(orderItem: CartItem): String {
         val ITEM_NAME_WIDTH = 12;
         val ITEM_QTY_WIDTH = 6;
         val ITEM_PRICE_WIDTH = 7;
@@ -95,7 +96,7 @@ class PrintableReceipt(
     }
 }
 
-class Item(
+class CartItem(
     val name: String,
     val price: Double,
     val quantity: Int,
@@ -106,4 +107,3 @@ data class OtherCharge(
     val name: String,
     val value: Double,
 )
-
