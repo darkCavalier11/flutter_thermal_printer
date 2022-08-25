@@ -55,6 +55,7 @@ class PrintableOrderItems {
   String toString() {
     return 'PrintableOrderItems(name: $name, total: $total, quantity: $quantity, price: $price)';
   }
+
   Map<String, dynamic> toJson() {
     return {
       'name': name,
@@ -104,8 +105,7 @@ class PrintableReceipt {
           : (json['other_charges'] as List)
               .map((e) => PrintableCharges.fromJson(e))
               .toList(),
-      discount:
-          json['discount'] == null ? 0 : (json['discount'] as int).paisaToRupee,
+      discount: json['discount'] ?? 0,
       orderTotal: json['order_total'] == null
           ? 0
           : (json['order_total'] as int).paisaToRupee,
