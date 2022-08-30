@@ -8,12 +8,11 @@ class PrintableCharges {
   factory PrintableCharges.fromJson(Map<String, dynamic> json) {
     return PrintableCharges(
       name: json['name'] ?? '-',
-      value: json['value'] == null ? 0 : (json['value'] as int).paisaToRupee,
+      value: json['value'].runtimeType == int
+          ? (json['value'] as int).paisaToRupee
+          : json['value'],
     );
   }
-
-  @override
-  String toString() => 'PrintableCharges(name: $name, value: $value)';
 
   Map<String, dynamic> toJson() {
     return {
@@ -22,12 +21,8 @@ class PrintableCharges {
     };
   }
 
-  factory PrintableCharges.fromMap(Map<String, dynamic> map) {
-    return PrintableCharges(
-      name: map['name'] ?? '',
-      value: map['value']?.toDouble() ?? 0.0,
-    );
-  }
+  @override
+  String toString() => 'PrintableCharges(name: $name, value: $value)';
 }
 
 class PrintableOrderItems {
@@ -45,9 +40,17 @@ class PrintableOrderItems {
   factory PrintableOrderItems.fromJson(Map<String, dynamic> json) {
     return PrintableOrderItems(
       name: json['name'] ?? '-',
-      total: json['total'] == null ? 0 : (json['total'] as int).paisaToRupee,
+      total: json['total'] != null
+          ? json['total'].runtimeType == int
+              ? (json['total'] as int).paisaToRupee
+              : json['total']
+          : 0,
       quantity: json['quantity'] ?? 0,
-      price: json['price'] == null ? 0 : (json['price'] as int).paisaToRupee,
+      price: json['price'] != null
+          ? json['price'].runtimeType == int
+              ? (json['price'] as int).paisaToRupee
+              : json['price']
+          : 0,
     );
   }
 
@@ -105,11 +108,16 @@ class PrintableReceipt {
           : (json['other_charges'] as List)
               .map((e) => PrintableCharges.fromJson(e))
               .toList(),
-      discount:
-          json['discount'] == null ? 0 : (json['discount'] as int).paisaToRupee,
-      orderTotal: json['order_total'] == null
-          ? 0
-          : (json['order_total'] as int).paisaToRupee,
+      discount: json['discount'] != null
+          ? json['discount'].runtimeType == int
+              ? (json['discount'] as int).paisaToRupee
+              : json['discount']
+          : 0,
+      orderTotal: json['order_total'] != null
+          ? json['order_total'].runtimeType == int
+              ? (json['order_total'] as int).paisaToRupee
+              : json['order_total']
+          : 0,
       printerId: json['printer_id'] ?? '',
       orderId: json['order_id'] ?? '-',
     );
