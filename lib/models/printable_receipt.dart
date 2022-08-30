@@ -105,7 +105,8 @@ class PrintableReceipt {
           : (json['other_charges'] as List)
               .map((e) => PrintableCharges.fromJson(e))
               .toList(),
-      discount: json['discount'] ?? 0,
+      discount:
+          json['discount'] == null ? 0 : (json['discount'] as int).paisaToRupee,
       orderTotal: json['order_total'] == null
           ? 0
           : (json['order_total'] as int).paisaToRupee,
