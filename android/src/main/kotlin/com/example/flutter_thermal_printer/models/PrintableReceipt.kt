@@ -33,7 +33,7 @@ class PrintableReceipt(
             "[C]<font size='big'>${orderId}</font>\n" +
                     "[C]<b>${datetime}</b>\n" +
                     "[C]<b>${businessName}</b>\n" +
-                    "[C]<b>Customer Ph: ${customerPhone}</b>\n"
+                    "[C]<b>Customer Ph: ${customerPhone}</b>\n" +
                     "[C]--------------------------------\n" +
                     "<b>Items       Qty   Price  Total  </b>\n" +
                     "[C]--------------------------------\n"
