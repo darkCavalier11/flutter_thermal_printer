@@ -96,7 +96,7 @@ class PrintableReceipt(
             printableOrderItemString += total + " " + " ".repeat (ITEM_TOTAL_WIDTH - price.length - 1)
             printableOrderItemString += '\n'
         }
-        printableOrderItemString += "[C]--------------------------------"
+        printableOrderItemString += "[C]--------------------------------\n"
         return printableOrderItemString
     }
 }
