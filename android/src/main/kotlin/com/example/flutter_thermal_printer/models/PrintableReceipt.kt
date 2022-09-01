@@ -6,7 +6,7 @@ import java.lang.Integer.min
 
 
 class PrintableReceipt(
-    val address: String,
+    val address: String?,
     @SerializedName("date_time")
     val datetime: String,
     @SerializedName("delivery_type")
@@ -33,7 +33,7 @@ class PrintableReceipt(
             "[C]<font size='big'>${orderId}</font>\n" +
                     "[C]<b>${datetime}</b>\n" +
                     "[C]<b>${businessName}</b>\n" +
-                    "[C]<b>Customer Ph: ${customerPhone}</b>[C]"
+                    "[C]<b>Customer Ph: ${customerPhone}</b>\n"
                     "[C]--------------------------------\n" +
                     "<b>Items       Qty   Price  Total  </b>\n" +
                     "[C]--------------------------------\n"
@@ -48,7 +48,9 @@ class PrintableReceipt(
         printableString += "[C]--------------------------------\n"
         printableString += "<b>${deliveryType}</b>\n"
         printableString += "[C]--------------------------------\n"
-        printableString += "[L]<font size='big'>${address}</font>"
+        if (address != null) {
+            printableString += "[L]<font size='big'>${address}</font>"
+        }
         return printableString
     }
     private fun addOrderItemToPrintableString(orderItem: CartItem): String {
