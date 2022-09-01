@@ -80,8 +80,10 @@ class PrintableReceipt {
   final String printerId;
   final String businessName;
   final String orderId;
+  final String customerPhone;
   PrintableReceipt({
     required this.dateTime,
+    required this.customerPhone,
     required this.address,
     required this.deliveryType,
     required this.items,
@@ -120,6 +122,7 @@ class PrintableReceipt {
           : 0,
       printerId: json['printer_id'] ?? '',
       orderId: json['order_id'] ?? '-',
+      customerPhone: json['customer_phone'] ?? '-',
     );
   }
 
@@ -135,6 +138,7 @@ class PrintableReceipt {
       'printer_id': printerId,
       'business_name': businessName,
       'order_id': orderId,
+      'customer_phone': customerPhone,
     };
   }
 }

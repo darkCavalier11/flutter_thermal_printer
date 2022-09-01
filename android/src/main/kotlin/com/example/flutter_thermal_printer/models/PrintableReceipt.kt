@@ -23,6 +23,8 @@ class PrintableReceipt(
     val printerId: String,
     @SerializedName("business_name")
     val businessName: String,
+    @SerializedName("customer_phone")
+    val customerPhone: String
 
     ) {
 
@@ -31,6 +33,7 @@ class PrintableReceipt(
             "[C]<font size='big'>${orderId}</font>\n" +
                     "[C]<b>${datetime}</b>\n" +
                     "[C]<b>${businessName}</b>\n" +
+                    "[C]<b>customer ph: ${customerPhone}</b>[C]"
                     "[C]--------------------------------\n" +
                     "<b>Items       Qty   Price  Total  </b>\n" +
                     "[C]--------------------------------\n"
