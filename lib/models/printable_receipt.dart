@@ -128,7 +128,7 @@ class PrintableReceipt {
 
   Map<String, dynamic> toJson() {
     return {
-      'date_time': dateTime,
+      'datetime': dateTime,
       'address': address,
       'delivery_type': deliveryType,
       'items': items.map((x) => x.toJson()).toList(),
