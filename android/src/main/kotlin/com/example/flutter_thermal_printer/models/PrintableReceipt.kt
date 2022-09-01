@@ -7,7 +7,7 @@ import java.lang.Integer.min
 
 class PrintableReceipt(
     val address: String?,
-    @SerializedName("date_time")
+    @SerializedName("datetime")
     val datetime: String,
     @SerializedName("delivery_type")
     val deliveryType: String,
