@@ -52,8 +52,9 @@ class PrintableReceipt(
             printableString += "[L]<font size='big'>${address}</font>\n"
         }
         if (qrCodeText != null) {
-            printableString += "[C]<qrcode size='20'>${qrCodeText}</qrcode>\n\n\n"
+            printableString += "[C]<qrcode size='20'>${qrCodeText}</qrcode>\n"
         }
+        printableString += "[C]\n\n\n\n\n\n"
         return printableString
     }
     private fun addOrderItemToPrintableString(orderItem: CartItem): String {
