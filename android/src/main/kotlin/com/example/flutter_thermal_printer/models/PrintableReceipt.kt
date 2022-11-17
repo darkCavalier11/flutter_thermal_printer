@@ -28,7 +28,7 @@ class PrintableReceipt(
 
     ) {
 
-    public fun generatePrintableString(): String {
+    public fun generatePrintableString(qrCodeText: String? = null): String {
         var printableString =
             "[C]<font size='big'>${orderId}</font>\n" +
                     "[C]<b>${datetime}</b>\n" +
@@ -50,6 +50,9 @@ class PrintableReceipt(
         printableString += "[C]--------------------------------\n"
         if (address != null) {
             printableString += "[L]<font size='big'>${address}</font>"
+        }
+        if (qrCodeText != null) {
+            printableString += "[C]<qrcode size='20'>${qrCodeText}/</qrcode>"
         }
         return printableString
     }

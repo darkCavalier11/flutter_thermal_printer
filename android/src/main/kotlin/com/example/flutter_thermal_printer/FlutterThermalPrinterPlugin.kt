@@ -124,6 +124,7 @@ class FlutterThermalPrinterPlugin: FlutterPlugin, MethodCallHandler, ActivityAwa
 
   private fun printReceipt(@NonNull call: MethodCall, @NonNull result: Result) {
     val printableReceiptMap = call.argument<Map<String, Any>>("printable_receipt")
+    val qrCodeText = call.argument<String?>("qr_code_text")
     val gson = Gson()
     val printableReceipt = gson.fromJson(gson.toJson(printableReceiptMap), PrintableReceipt::class.java)
     if (printer == null) {
@@ -132,7 +133,7 @@ class FlutterThermalPrinterPlugin: FlutterPlugin, MethodCallHandler, ActivityAwa
         printer = EscPosPrinter(selectedPrinter.connect(), 203, 48f, 32)
       }
     }
-    printer?.printFormattedText(printableReceipt.generatePrintableString())
+    printer?.printFormattedText(printableReceipt.generatePrintableString(qrCodeText = qrCodeText))
     result.success(true)
   }
 
