@@ -49,10 +49,10 @@ class PrintableReceipt(
         printableString += "<b>${deliveryType}</b>\n"
         printableString += "[C]--------------------------------\n"
         if (address != null) {
-            printableString += "[L]<font size='big'>${address}</font>"
+            printableString += "[L]<font size='big'>${address}</font>\n"
         }
         if (qrCodeText != null) {
-            printableString += "[C]<qrcode size='20'>${qrCodeText}/</qrcode>"
+            printableString += "[C]<qrcode size='20'>${qrCodeText}</qrcode>\n"
         }
         return printableString
     }
