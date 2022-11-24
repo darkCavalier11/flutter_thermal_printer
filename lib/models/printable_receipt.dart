@@ -81,6 +81,7 @@ class PrintableReceipt {
   final String businessName;
   final String orderId;
   final String customerPhone;
+  final String orderLongId;
   PrintableReceipt({
     required this.dateTime,
     required this.customerPhone,
@@ -93,9 +94,11 @@ class PrintableReceipt {
     required this.printerId,
     required this.businessName,
     required this.orderId,
+    required this.orderLongId,
   });
   factory PrintableReceipt.fromJson(Map<String, dynamic> json) {
     return PrintableReceipt(
+      orderLongId: json['order_long_id'] ?? '',
       dateTime: json['datetime'] ?? '-',
       address: json['address'] ?? '-',
       deliveryType: json['delivery_type'] ?? '-',
