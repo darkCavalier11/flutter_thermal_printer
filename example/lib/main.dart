@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'dart:async';
 
@@ -61,7 +63,9 @@ class _MyAppState extends State<MyApp> {
             final p = await FlutterThermalPrinter.getAllPairedDevices;
             p[0].connect();
             // await Future.delayed(Duration(seconds: 5));
-            // p[0].printReceipt(PrintableReceipt.fromJson(jsonDecode(json)));
+            p[0].printReceipt(PrintableReceipt.fromJson(jsonDecode(json)),
+                qrCodeText:
+                    '4lWio0SGdkjrifokjelrjierklekn==@^()))(+_fgjnreklf');
           },
           child: const Icon(Icons.print),
         ),

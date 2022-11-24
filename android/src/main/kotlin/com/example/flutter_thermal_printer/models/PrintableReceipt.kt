@@ -28,7 +28,7 @@ class PrintableReceipt(
 
     ) {
 
-    public fun generatePrintableString(): String {
+    public fun generatePrintableString(qrCodeText: String? = null): String {
         var printableString =
             "[C]<font size='big'>${orderId}</font>\n" +
                     "[C]<b>${datetime}</b>\n" +
@@ -49,8 +49,12 @@ class PrintableReceipt(
         printableString += "<b>${deliveryType}</b>\n"
         printableString += "[C]--------------------------------\n"
         if (address != null) {
-            printableString += "[L]<font size='big'>${address}</font>"
+            printableString += "[L]<font size='big'>${address}</font>\n"
         }
+        if (qrCodeText != null) {
+            printableString += "[C]<qrcode size='20'>${qrCodeText}</qrcode>\n"
+        }
+        printableString += "[C]\n\n\n\n\n\n"
         return printableString
     }
     private fun addOrderItemToPrintableString(orderItem: CartItem): String {
