@@ -8,7 +8,7 @@ class PrintableCharges {
   factory PrintableCharges.fromJson(Map<String, dynamic> json) {
     return PrintableCharges(
       name: json['name'] ?? '-',
-      value: json['value'],
+      value: (json['value']) * 1.0,
     );
   }
 
@@ -40,7 +40,7 @@ class PrintableOrderItems {
       name: json['name'] ?? '-',
       total: json['total'] ?? 0,
       quantity: json['quantity'] ?? 0,
-      price: json['price'] ?? 0,
+      price: (json['price'] ?? 0) * 1.0,
     );
   }
 
@@ -103,8 +103,8 @@ class PrintableReceipt {
           : (json['other_charges'] as List)
               .map((e) => PrintableCharges.fromJson(e))
               .toList(),
-      discount: json['discount'] ?? 0,
-      orderTotal: json['order_total'] ?? 0,
+      discount: (json['discount'] ?? 0) * 1.0,
+      orderTotal: (json['order_total'] ?? 0) * 1.0,
       printerId: json['printer_id'] ?? '',
       orderId: json['order_id'] ?? '-',
       customerPhone: json['customer_phone'] ?? '-',
