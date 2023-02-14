@@ -8,9 +8,7 @@ class PrintableCharges {
   factory PrintableCharges.fromJson(Map<String, dynamic> json) {
     return PrintableCharges(
       name: json['name'] ?? '-',
-      value: json['value'].runtimeType == int
-          ? (json['value'] as int).paisaToRupee
-          : json['value'],
+      value: json['value'],
     );
   }
 
@@ -40,17 +38,9 @@ class PrintableOrderItems {
   factory PrintableOrderItems.fromJson(Map<String, dynamic> json) {
     return PrintableOrderItems(
       name: json['name'] ?? '-',
-      total: json['total'] != null
-          ? json['total'].runtimeType == int
-              ? (json['total'] as int).paisaToRupee
-              : json['total']
-          : 0,
+      total: json['total'] ?? 0,
       quantity: json['quantity'] ?? 0,
-      price: json['price'] != null
-          ? json['price'].runtimeType == int
-              ? (json['price'] as int).paisaToRupee
-              : json['price']
-          : 0,
+      price: json['price'] ?? 0,
     );
   }
 
@@ -113,16 +103,8 @@ class PrintableReceipt {
           : (json['other_charges'] as List)
               .map((e) => PrintableCharges.fromJson(e))
               .toList(),
-      discount: json['discount'] != null
-          ? json['discount'].runtimeType == int
-              ? (json['discount'] as int).paisaToRupee
-              : json['discount']
-          : 0,
-      orderTotal: json['order_total'] != null
-          ? json['order_total'].runtimeType == int
-              ? (json['order_total'] as int).paisaToRupee
-              : json['order_total']
-          : 0,
+      discount: json['discount'] ?? 0,
+      orderTotal: json['order_total'] ?? 0,
       printerId: json['printer_id'] ?? '',
       orderId: json['order_id'] ?? '-',
       customerPhone: json['customer_phone'] ?? '-',
