@@ -25,7 +25,8 @@ class PrintableReceipt(
     val businessName: String,
     @SerializedName("customer_phone")
     val customerPhone: String
-
+    @SerializedName("customer_name")
+    val customerName: String
     ) {
 
     public fun generatePrintableString(qrCodeText: String? = null): String {
@@ -33,6 +34,7 @@ class PrintableReceipt(
             "[C]<font size='big'>${orderId}</font>\n" +
                     "[C]<b>${datetime}</b>\n" +
                     "[C]<b>${businessName}</b>\n" +
+                    "[C]<b>Customer Name: ${customerName}</b>\n" +
                     "[C]<b>Customer Ph: ${customerPhone}</b>\n" +
                     "[C]--------------------------------\n" +
                     "<b>Items       Qty   Price  Total  </b>\n" +

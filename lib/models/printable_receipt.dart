@@ -8,7 +8,7 @@ class PrintableCharges {
   factory PrintableCharges.fromJson(Map<String, dynamic> json) {
     return PrintableCharges(
       name: json['name'] ?? '-',
-      value: (json['value']) * 1.0,
+      value: json['value'],
     );
   }
 
@@ -40,7 +40,7 @@ class PrintableOrderItems {
       name: json['name'] ?? '-',
       total: json['total'] ?? 0,
       quantity: json['quantity'] ?? 0,
-      price: (json['price'] ?? 0) * 1.0,
+      price: json['price'] ?? 0,
     );
   }
 
@@ -71,6 +71,7 @@ class PrintableReceipt {
   final String businessName;
   final String orderId;
   final String customerPhone;
+  final String customerName;
   final String orderLongId;
   PrintableReceipt({
     required this.dateTime,
@@ -85,6 +86,7 @@ class PrintableReceipt {
     required this.businessName,
     required this.orderId,
     required this.orderLongId,
+    required this.customerName,
   });
   factory PrintableReceipt.fromJson(Map<String, dynamic> json) {
     return PrintableReceipt(
@@ -93,6 +95,7 @@ class PrintableReceipt {
       address: json['address'] ?? '-',
       deliveryType: json['delivery_type'] ?? '-',
       businessName: json['business_name'] ?? '-',
+      customerName: json['customer_name'] ?? '-',
       items: json['items'] == null
           ? []
           : (json['items'] as List)
@@ -103,8 +106,8 @@ class PrintableReceipt {
           : (json['other_charges'] as List)
               .map((e) => PrintableCharges.fromJson(e))
               .toList(),
-      discount: (json['discount'] ?? 0) * 1.0,
-      orderTotal: (json['order_total'] ?? 0) * 1.0,
+      discount: json['discount'] ?? 0,
+      orderTotal: json['order_total'] ?? 0,
       printerId: json['printer_id'] ?? '',
       orderId: json['order_id'] ?? '-',
       customerPhone: json['customer_phone'] ?? '-',
@@ -124,6 +127,7 @@ class PrintableReceipt {
       'business_name': businessName,
       'order_id': orderId,
       'customer_phone': customerPhone,
+      'customer_name': customerName,
     };
   }
 }
