@@ -52,5 +52,6 @@ class FlutterThermalPrinter {
         log(e.toString());
       }
     }
+    return null;
   }
 }

@@ -24,7 +24,7 @@ class PrintableReceipt(
     @SerializedName("business_name")
     val businessName: String,
     @SerializedName("customer_phone")
-    val customerPhone: String
+    val customerPhone: String,
     @SerializedName("customer_name")
     val customerName: String
     ) {

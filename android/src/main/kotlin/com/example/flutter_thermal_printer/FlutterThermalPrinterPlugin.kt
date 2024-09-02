@@ -15,6 +15,7 @@ import androidx.core.content.ContextCompat.getSystemService
 import com.dantsu.escposprinter.EscPosPrinter
 import com.dantsu.escposprinter.connection.bluetooth.BluetoothPrintersConnections
 import com.example.flutter_thermal_printer.models.BluetoothPrinter
+import com.example.flutter_thermal_printer.models.BusinessCreditReceipt
 import com.example.flutter_thermal_printer.models.CartItem
 import com.example.flutter_thermal_printer.models.PrintableReceipt
 import com.google.gson.Gson
@@ -137,6 +138,20 @@ class FlutterThermalPrinterPlugin: FlutterPlugin, MethodCallHandler, ActivityAwa
     result.success(true)
   }
 
+  private fun printBusinessCreditReceipt(@NonNull call: MethodCall, @NonNull result: Result) {
+    val businessCreditReciptMap = call.argument<Map<String, Any>>("business_credit_receipt")
+    val gson = Gson()
+    val printableReceipt = gson.fromJson(gson.toJson(businessCreditReciptMap), BusinessCreditReceipt::class.java)
+    if (printer == null) {
+      val selectedPrinter = BluetoothPrintersConnections().list?.first()
+      if (selectedPrinter != null) {
+        printer = EscPosPrinter(selectedPrinter.connect(), 203, 48f, 32)
+      }
+    }
+    printer?.printFormattedText(printableReceipt.generatePrintableString())
+    result.success(true)
+  }
+
   @RequiresApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
   override fun onMethodCall(@NonNull call: MethodCall, @NonNull result: Result) {
     PermissionUtils.askForPermissions(activity!!)
@@ -148,6 +163,7 @@ class FlutterThermalPrinterPlugin: FlutterPlugin, MethodCallHandler, ActivityAwa
       "disconnect" -> disconnect(call, result)
       "printString" -> printString(call, result)
       "printReceipt" -> printReceipt(call, result)
+      "printBusinessCreditReceipt" -> printBusinessCreditReceipt(call, result)
       else -> result.notImplemented()
     }
   }

@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_thermal_printer/flutter_thermal_printer.dart';
+import 'package:flutter_thermal_printer/models/business_credit_receipt.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class BluetoothPrinter {
@@ -57,6 +58,21 @@ class BluetoothPrinter {
     try {
       await _channel.invokeMethod("printReceipt",
           {"printable_receipt": receipt.toJson(), "qr_code_text": qrCodeText});
+      return true;
+    } catch (e) {
+      log(e.toString());
+      return false;
+    }
+  }
+
+  Future<bool> printBusinessCreditReceipt(BusinessCreditReceipt receipt) async {
+    try {
+      await _channel.invokeMethod(
+        "printBusinessCreditReceipt",
+        {
+          "business_credit_receipt": receipt.toJson(),
+        },
+      );
       return true;
     } catch (e) {
       log(e.toString());
