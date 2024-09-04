@@ -64,7 +64,7 @@ class _MyAppState extends State<MyApp> {
             final p = await FlutterThermalPrinter.getAllBluetoothPairedDevices;
             // await Future.delayed(Duration(seconds: 5));
             p[0].connect();
-            p[0].printString("Sumit");
+            p[0].printReceipt(PrintableReceipt.fromJson(jsonDecode(json)), qrCodeText: "4lWio0SGdkjrifokjelrjierklekn==@^()))(+_fgjnreklf");
             // await p[1].disconnect();
             //  status = await p[1].isConnected();
             // log('isConnected : $status');
@@ -115,6 +115,8 @@ var json = """
         ],
         "discount": 0,
         "order_total": 60270,
-        "address": "Pretty Address, eSamudaay TESTBOX"
+        "address": "Pretty Address, eSamudaay TESTBOX",
+        "customer_phone": "+91-7750860057",
+        "customer_name": "Sumit"
     }
 """;

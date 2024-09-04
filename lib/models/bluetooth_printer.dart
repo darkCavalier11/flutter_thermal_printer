@@ -33,8 +33,8 @@ class BluetoothPrinter {
     final status = await bluetoothConnectPermission.request();
     if (status.isGranted || status.isLimited) {
       try {
-        await _channel.invokeMethod(
-            "connectToBluetoothPrinterByAddress", {"bluetooth_printer_address": printerAddress});
+        await _channel.invokeMethod("connectToBluetoothPrinterByAddress",
+            {"bluetooth_printer_address": printerAddress});
       } catch (e) {
         log(e.toString());
       }
@@ -43,8 +43,8 @@ class BluetoothPrinter {
 
   Future<bool> printString(String printableString) async {
     try {
-      await _channel
-          .invokeMethod("printStringWithBluetoothPrinter", {"printable_string": printableString});
+      await _channel.invokeMethod("printStringWithBluetoothPrinter",
+          {"printable_string": printableString});
       return true;
     } catch (e) {
       log(e.toString());
@@ -55,8 +55,13 @@ class BluetoothPrinter {
   Future<bool> printReceipt(PrintableReceipt receipt,
       {String? qrCodeText}) async {
     try {
-      await _channel.invokeMethod("printReceipt",
-          {"printable_receipt": receipt.toJson(), "qr_code_text": qrCodeText});
+      await _channel.invokeMethod(
+        "printReceiptWithBluetoothPrinter",
+        {
+          "printable_receipt": receipt.toJson(),
+          "qr_code_text": qrCodeText,
+        },
+      );
       return true;
     } catch (e) {
       log(e.toString());
@@ -67,8 +72,9 @@ class BluetoothPrinter {
   // This method checks if the printer is connected to any printer.
   Future<bool> isConnected() async {
     try {
-      final isConnected =
-          await _channel.invokeMethod("isConnectedToBluetoothThermalPrinter", {"bluetooth_printer_address": printerAddress});
+      final isConnected = await _channel.invokeMethod(
+          "isConnectedToBluetoothThermalPrinter",
+          {"bluetooth_printer_address": printerAddress});
       return isConnected;
     } catch (e) {
       log(e.toString());

@@ -19,7 +19,6 @@ import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.app.ActivityCompat.startActivityForResult
 import androidx.core.content.ContextCompat.getSystemService
-import com.dantsu.escposprinter.EscPosPrinter
 import com.example.flutter_thermal_printer.models.BluetoothPrinter
 import com.example.flutter_thermal_printer.models.PrintableReceipt
 import com.google.gson.Gson
@@ -35,8 +34,8 @@ import net.posprinter.posprinterface.ProcessData
 import net.posprinter.posprinterface.TaskCallback
 import net.posprinter.service.PosprinterService
 import net.posprinter.utils.DataForSendToPrinterPos58
-import net.posprinter.utils.DataForSendToPrinterTSC
-import net.posprinter.utils.StringUtils
+import net.posprinter.utils.DataForSendToPrinterPos76
+import net.posprinter.utils.DataForSendToPrinterPos80
 
 /** FlutterThermalPrinterPlugin */
 class FlutterThermalPrinterPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
@@ -45,8 +44,6 @@ class FlutterThermalPrinterPlugin: FlutterPlugin, MethodCallHandler, ActivityAwa
   /// This local reference serves to register the plugin with the Flutter Engine and unregister it
   /// when the Flutter Engine is detached from the Activity
   private lateinit var channel : MethodChannel
-
-  private var printer: EscPosPrinter? = null
 
   private var activity: Activity? = null
   private lateinit var context: Context
@@ -236,75 +233,101 @@ class FlutterThermalPrinterPlugin: FlutterPlugin, MethodCallHandler, ActivityAwa
     }
   }
 
-  private fun printReceipt(call: MethodCall, result: Result) {
+  private fun printReceiptWithBluetoothPrinter(call: MethodCall, result: Result) {
     val printableReceiptMap = call.argument<Map<String, Any>>("printable_receipt")
     val qrCodeText = call.argument<String?>("qr_code_text")
     val gson = Gson()
     val printableReceipt = gson.fromJson(gson.toJson(printableReceiptMap), PrintableReceipt::class.java)
-    Log.d("ThermalPrinter", "connected thermal printer $connectedThermalPrinter")
+    logger("printReceiptWithBluetoothPrinter() with $printableReceiptMap, $qrCodeText with $connectedThermalPrinter")
     if (connectedThermalPrinter == null) {
       result.error("NO PRINTER FOUND", "connect to printer before print", "Try to connect to printer before printing.")
       return
     }
-//    if (!isConnectedToPrinter) {
-//      connectBT(printableReceipt.printerId)
-//    }
-//    if (printer == null) {
-//      val selectedPrinter = BluetoothPrintersConnections().list?.first { printer -> printer.device.address == printableReceipt.printerId }
-//      if (selectedPrinter != null) {
-////        printer = EscPosPrinter(selectedPrinter.connect(), 203, 48f, 32)
-//        connectBT(selectedPrinter.device.address)
+    myBinder?.WriteSendData(object : TaskCallback {
+      override fun OnSucceed() {
+        logger("printStringWithBluetoothPrinter() successfully sent data for printing")
+      }
+
+      override fun OnFailed() {
+        logger("printStringWithBluetoothPrinter() failed to send data for printing")
+      }
+    }, ProcessData {
+      val list: MutableList<ByteArray> = java.util.ArrayList()
+//      list.add(DataForSendToPrinterPos58.initializePrinter())
+//      list.add(DataForSendToPrinterPos58.selectAlignment(1))
+//      list.add(DataForSendToPrinterPos58.selectCharacterSize(18))
+//      list.add(printableReceipt.orderId.encodeToByteArray())
+//      list.add(DataForSendToPrinterPos58.printAndFeedLine())
 //
+//      list.add(DataForSendToPrinterPos58.selectCharacterSize(16))
+//      list.add(printableReceipt.datetime.encodeToByteArray())
+//      list.add(DataForSendToPrinterPos58.printAndFeedLine())
+//
+//      list.add(printableReceipt.businessName.encodeToByteArray())
+//      list.add(DataForSendToPrinterPos58.printAndFeedLine())
+//      list.add(DataForSendToPrinterPos58.selectOrCancelBoldModel(1))
+//
+//      list.add("Customer Ph \n${printableReceipt.customerPhone}".encodeToByteArray())
+//      list.add(DataForSendToPrinterPos58.printAndFeedLine())
+//
+//      list.add("Customer Name \n${printableReceipt.customerName}".encodeToByteArray())
+//      list.add(DataForSendToPrinterPos58.printAndFeedLine())
+
+//      list.add(DataForSendToPrinterPos58.initializePrinter())
+//      list.add(DataForSendToPrinterPos58.selectCharacterSize(1))
+//
+//      list.add("--------------------------------".encodeToByteArray())
+//      list.add(DataForSendToPrinterPos58.printAndFeedLine())
+//      list.add("Items       Qty   Price  Total  ".encodeToByteArray())
+//      list.add("--------------------------------".encodeToByteArray())
+
+//      list.add(DataForSendToPrinterPos58.initializePrinter())
+//
+//      for (item in printableReceipt.items) {
+//        list.add(printableReceipt.addOrderItemToPrintableString(item).encodeToByteArray())
 //      }
-//    }
+//
+//      list.add(DataForSendToPrinterPos58.initializePrinter())
+//      list.add(DataForSendToPrinterPos58.selectAlignment(2))
+//      list.add("\n".encodeToByteArray())
+//
+//      for (charge in printableReceipt.otherCharges) {
+//        list.add(DataForSendToPrinterPos58.selectAlignment(2))
+//        list.add("${charge.name} ${charge.value}\n".encodeToByteArray())
+//      }
+//
+//      list.add("--------------------------------".encodeToByteArray())
+//      list.add(DataForSendToPrinterPos58.printAndFeedLine())
+//      list.add("Rs. ${printableReceipt.orderTotal}".encodeToByteArray())
+//      list.add(DataForSendToPrinterPos58.printAndFeedLine())
+//      list.add("--------------------------------".encodeToByteArray())
+//      list.add(DataForSendToPrinterPos58.printAndFeedLine())
+//      list.add(DataForSendToPrinterPos58.selectOrCancelBoldModel(1))
+//      list.add(printableReceipt.deliveryType.encodeToByteArray())
+//      list.add(DataForSendToPrinterPos58.printAndFeedLine())
+//      list.add("--------------------------------".encodeToByteArray())
+//      list.add(DataForSendToPrinterPos58.printAndFeedLine())
+//
+//      if (printableReceipt.address != null) {
+//        list.add(DataForSendToPrinterPos58.initializePrinter())
+//        list.add(DataForSendToPrinterPos58.selectCharacterSize(2))
+//        list.add(printableReceipt.address.encodeToByteArray())
+//      }
 
-//    printer?.printFormattedText(printableReceipt.generatePrintableString(qrCodeText = qrCodeText))
-//    if (isConnectedToPrinter) {
-//      Log.d("ThermalPrinter", "Invoking printText()")
-//      printText()
-//    }
-//    result.success(true)
-  }
+      if (qrCodeText != null) {
+        list.add(DataForSendToPrinterPos58.initializePrinter())
+        list.add(DataForSendToPrinterPos58.selectAlignment(1))
+        list.add(DataForSendToPrinterPos80.printQRcode(2, 4, "Hello"))
+        list.add(DataForSendToPrinterPos58.printAndFeedLine())
+      }
 
-  private fun printText() {
-
-      myBinder?.WriteSendData(object : TaskCallback {
-        override fun OnSucceed() {
-          Toast.makeText(
-            context,
-            "Printing text",
-            Toast.LENGTH_SHORT
-          ).show()
-        }
-
-        override fun OnFailed() {
-          Toast.makeText(
-            context,
-            "Error printing text, connection fails",
-            Toast.LENGTH_SHORT
-          ).show()
-        }
-      }, ProcessData {
-        val list: MutableList<ByteArray> = ArrayList()
-        //设置标签纸大小
-        list.add(DataForSendToPrinterTSC.sizeBymm(50.0, 30.0))
-        //设置间隙
-        list.add(DataForSendToPrinterTSC.gapBymm(2.0, 0.0))
-        //清除缓存
-        list.add(DataForSendToPrinterTSC.cls())
-        //设置方向
-        list.add(DataForSendToPrinterTSC.direction(0))
-        //线条
-        //                    list.add(DataForSendToPrinterTSC.bar(10,10,200,3));
-        //条码
-        //                    list.add(DataForSendToPrinterTSC.barCode(10,15,"128",100,1,0,2,2,"abcdef12345"));
-        //文本
-        list.add(DataForSendToPrinterTSC.text(10, 30, "TSS24.BF2", 0, 1, 1, "abcasdjknf"))
-        //打印
-        list.add(DataForSendToPrinterTSC.print(1))
-        list
-      })
-
+      list.add(DataForSendToPrinterPos58.printAndFeedLine())
+      list.add(DataForSendToPrinterPos58.printAndFeedLine())
+      list.add(DataForSendToPrinterPos58.printAndFeedLine())
+      list.add(DataForSendToPrinterPos58.printAndFeedLine())
+      list
+    })
+    result.success(true)
   }
 
   @RequiresApi(Build.VERSION_CODES.S)
@@ -317,7 +340,7 @@ class FlutterThermalPrinterPlugin: FlutterPlugin, MethodCallHandler, ActivityAwa
       "isConnectedToBluetoothThermalPrinter" -> isConnectedToBluetoothThermalPrinter(call, result)
       "disconnectBluetoothThermalPrinter" -> disconnectBluetoothThermalPrinter(call, result)
       "printStringWithBluetoothPrinter" -> printStringWithBluetoothPrinter(call, result)
-      "printReceipt" -> printReceipt(call, result)
+      "printReceiptWithBluetoothPrinter" -> printReceiptWithBluetoothPrinter(call, result)
       else -> result.notImplemented()
     }
   }

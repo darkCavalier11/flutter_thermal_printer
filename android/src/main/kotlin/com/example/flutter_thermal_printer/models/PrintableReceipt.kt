@@ -24,8 +24,9 @@ class PrintableReceipt(
     @SerializedName("business_name")
     val businessName: String,
     @SerializedName("customer_phone")
-    val customerPhone: String
-
+    val customerPhone: String,
+    @SerializedName("customer_name")
+    val customerName: String
     ) {
 
     public fun generatePrintableString(qrCodeText: String? = null): String {
@@ -57,7 +58,7 @@ class PrintableReceipt(
         printableString += "[C]\n\n\n\n\n\n"
         return printableString
     }
-    private fun addOrderItemToPrintableString(orderItem: CartItem): String {
+    fun addOrderItemToPrintableString(orderItem: CartItem): String {
         val ITEM_NAME_WIDTH = 12;
         val ITEM_QTY_WIDTH = 6;
         val ITEM_PRICE_WIDTH = 7;
@@ -100,7 +101,7 @@ class PrintableReceipt(
             printableOrderItemString += total + " " + " ".repeat (ITEM_TOTAL_WIDTH - price.length - 1)
             printableOrderItemString += '\n'
         }
-        printableOrderItemString += "[C]--------------------------------\n"
+        printableOrderItemString += "--------------------------------"
         return printableOrderItemString
     }
 }
