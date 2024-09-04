@@ -41,21 +41,30 @@ class FlutterThermalPrinterPlugin: FlutterPlugin, MethodCallHandler, ActivityAwa
   /// This local reference serves to register the plugin with the Flutter Engine and unregister it
   /// when the Flutter Engine is detached from the Activity
   private lateinit var channel : MethodChannel
+
   private var printer: EscPosPrinter? = null
   private var connectedPrinterAddress: String? = null
+
   private var activity: Activity? = null
   private lateinit var context: Context
+  private var bluetoothAdapter: BluetoothAdapter? = null
+  private var bluetoothManager: BluetoothManager? = null
+
   private var myBinder: IMyBinder? = null
   private var isConnectedToPrinter = false
   private var mSerconnection: ServiceConnection = object : ServiceConnection {
     override fun onServiceConnected(name: ComponentName, service: IBinder) {
       myBinder = service as IMyBinder
-      Log.e("myBinder", "connect")
+      makeLog("onServiceConnected(name: ComponentName, service: IBinder)")
     }
 
     override fun onServiceDisconnected(name: ComponentName) {
-      Log.e("myBinder", "disconnect")
+      makeLog("onServiceDisconnected(name: ComponentName)")
     }
+  }
+
+  fun makeLog(log: Any) {
+    Log.d("ThermalPrinterPlugin", "$log")
   }
 
   override fun onAttachedToEngine(@NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
@@ -66,14 +75,13 @@ class FlutterThermalPrinterPlugin: FlutterPlugin, MethodCallHandler, ActivityAwa
 
   @RequiresApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
   private fun initialise() {
-    if (activity != null) {
-      PermissionUtils.askForPermissions(activity!!)
-    }
-    val bluetoothManager: BluetoothManager? = getSystemService(context, BluetoothManager::class.java)
-    val bluetoothAdapter: BluetoothAdapter? = bluetoothManager?.adapter
+    makeLog("Initialising Bluetooth manager and adapter")
+    bluetoothManager = getSystemService(context, BluetoothManager::class.java)
+    bluetoothAdapter = bluetoothManager?.adapter
     if (bluetoothAdapter == null) {
       Toast.makeText(context, "Bluetooth adapter not found", Toast.LENGTH_SHORT).show()
     } else {
+      makeLog("starting activity for bluetooth action intent")
       val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
       startActivityForResult(activity!!,  enableBtIntent, 1, null)
     }
