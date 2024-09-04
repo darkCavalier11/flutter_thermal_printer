@@ -3,7 +3,6 @@ package com.example.flutter_thermal_printer
 
 import android.app.Activity
 import android.bluetooth.BluetoothAdapter
-import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothManager
 import android.content.ComponentName
 import android.content.Context
@@ -20,7 +19,6 @@ import androidx.core.app.ActivityCompat
 import androidx.core.app.ActivityCompat.startActivityForResult
 import androidx.core.content.ContextCompat.getSystemService
 import com.dantsu.escposprinter.EscPosPrinter
-import com.dantsu.escposprinter.connection.bluetooth.BluetoothConnection
 import com.dantsu.escposprinter.connection.bluetooth.BluetoothPrintersConnections
 import com.example.flutter_thermal_printer.models.BluetoothPrinter
 import com.example.flutter_thermal_printer.models.PrintableReceipt
@@ -139,22 +137,24 @@ class FlutterThermalPrinterPlugin: FlutterPlugin, MethodCallHandler, ActivityAwa
     result.success(bluetoothPrintersMap)
   }
 
-  private fun connectToPrinterByAddress(@NonNull call: MethodCall, @NonNull result: Result) {
-    val address = call.argument<String>("printer_id")
+  private fun connectToBluetoothPrinterByAddress(call: MethodCall, result: Result) {
+    val address = call.argument<String>("bluetooth_printer_address")
     val selectedPrinter = BluetoothPrintersConnections().list?.first { printer -> printer.device.address == address }
     if (selectedPrinter != null) {
       printer = EscPosPrinter(selectedPrinter.connect(), 203, 48f, 32)
       connectedPrinterAddress = address
       // printing an empty line to make sure it is connected
       printer?.printFormattedText("[L]\n")
+
       val connectedPrinter = BluetoothPrinter(selectedPrinter.device.address, selectedPrinter.device.name)
-      result.success(connectedPrinter.toJson())
+      result.success(true)
     } else {
       result.error(
         "NOT FOUND",
         "Unable to connect to the printer with $address",
         "Error occured while connecting to the printer with address $address. Make sure printer is on, and paired with the device"
       )
+      result.success(false)
     }
   }
 
@@ -280,7 +280,7 @@ class FlutterThermalPrinterPlugin: FlutterPlugin, MethodCallHandler, ActivityAwa
     when (call.method) {
       "initialise" -> initialise()
       "getAllPairedDevices" -> getAllPairedDevices(call, result)
-      "connectToPrinterByAddress" -> connectToPrinterByAddress(call, result)
+      "connectToPrinterByAddress" -> connectToBluetoothPrinterByAddress(call, result)
       "isConnected" -> isConnected(call, result)
       "disconnect" -> disconnect(call, result)
       "printString" -> printString(call, result)

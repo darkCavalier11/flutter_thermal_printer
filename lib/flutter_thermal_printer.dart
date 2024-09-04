@@ -35,22 +35,19 @@ class FlutterThermalPrinter {
     return bluetoothPrinters;
   }
 
-  static Future<BluetoothPrinter?> connectToPrinterByAddress(
+  static Future<bool> connectToBluetoothPrinterByAddress(
       String address) async {
     const bluetoothConnectPermission = Permission.bluetoothConnect;
     final status = await bluetoothConnectPermission.request();
     if (status.isGranted || status.isLimited) {
       try {
         final connectedPrinter = await _channel
-            .invokeMethod("connectToPrinterByAddress", {"printer_id": address});
-        log(connectedPrinter.toString());
-        return BluetoothPrinter(
-          printerName: connectedPrinter['printer_name'],
-          printerId: connectedPrinter['printer_id'],
-        );
+            .invokeMethod<bool>("connectToBluetoothPrinterByAddress", {"bluetooth_printer_address": address});
+        return connectedPrinter ?? false;
       } catch (e) {
         log(e.toString());
       }
     }
+    return false;
   }
 }
