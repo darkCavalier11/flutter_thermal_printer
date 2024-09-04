@@ -1,11 +1,15 @@
 package com.example.flutter_thermal_printer
 
+
 import android.app.Activity
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothManager
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.content.ServiceConnection
 import android.os.Build
+import android.os.IBinder
 import android.util.Log
 import android.widget.Toast
 import androidx.annotation.NonNull
@@ -15,11 +19,8 @@ import androidx.core.content.ContextCompat.getSystemService
 import com.dantsu.escposprinter.EscPosPrinter
 import com.dantsu.escposprinter.connection.bluetooth.BluetoothPrintersConnections
 import com.example.flutter_thermal_printer.models.BluetoothPrinter
-import com.example.flutter_thermal_printer.models.CartItem
 import com.example.flutter_thermal_printer.models.PrintableReceipt
 import com.google.gson.Gson
-
-
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
@@ -27,8 +28,11 @@ import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler
 import io.flutter.plugin.common.MethodChannel.Result
-import org.json.JSONObject
-import java.lang.Integer.min
+import net.posprinter.posprinterface.IMyBinder
+import net.posprinter.posprinterface.ProcessData
+import net.posprinter.posprinterface.TaskCallback
+import net.posprinter.service.PosprinterService
+import net.posprinter.utils.DataForSendToPrinterTSC
 
 /** FlutterThermalPrinterPlugin */
 class FlutterThermalPrinterPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
@@ -41,6 +45,18 @@ class FlutterThermalPrinterPlugin: FlutterPlugin, MethodCallHandler, ActivityAwa
   private var connectedPrinterAddress: String? = null
   private var activity: Activity? = null
   private lateinit var context: Context
+  private var myBinder: IMyBinder? = null
+  private var isConnectedToPrinter = false
+  private var mSerconnection: ServiceConnection = object : ServiceConnection {
+    override fun onServiceConnected(name: ComponentName, service: IBinder) {
+      myBinder = service as IMyBinder
+      Log.e("myBinder", "connect")
+    }
+
+    override fun onServiceDisconnected(name: ComponentName) {
+      Log.e("myBinder", "disconnect")
+    }
+  }
 
   override fun onAttachedToEngine(@NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
     channel = MethodChannel(flutterPluginBinding.binaryMessenger, "flutter_thermal_printer")
@@ -61,7 +77,6 @@ class FlutterThermalPrinterPlugin: FlutterPlugin, MethodCallHandler, ActivityAwa
       val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
       startActivityForResult(activity!!,  enableBtIntent, 1, null)
     }
-
   }
 
   private fun getAllPairedDevices(@NonNull call: MethodCall, @NonNull result: Result) {
@@ -89,7 +104,11 @@ class FlutterThermalPrinterPlugin: FlutterPlugin, MethodCallHandler, ActivityAwa
       val connectedPrinter = BluetoothPrinter(selectedPrinter.device.address, selectedPrinter.device.name)
       result.success(connectedPrinter.toJson())
     } else {
-      result.error("NOT FOUND", "Unable to connect to the printer with $address", "Error occured while connecting to the printer with address $address. Make sure printer is on, and paired with the device",)
+      result.error(
+        "NOT FOUND",
+        "Unable to connect to the printer with $address",
+        "Error occured while connecting to the printer with address $address. Make sure printer is on, and paired with the device"
+      )
     }
   }
 
@@ -121,20 +140,92 @@ class FlutterThermalPrinterPlugin: FlutterPlugin, MethodCallHandler, ActivityAwa
       result.error("NO PRINTER FOUND", "connect to printer before print", "Try to connect to printer before printing.")
     }
   }
-
+  private fun logger(text: Any) {
+    Log.d("ThermalPrinter", "$text")
+  }
   private fun printReceipt(@NonNull call: MethodCall, @NonNull result: Result) {
     val printableReceiptMap = call.argument<Map<String, Any>>("printable_receipt")
-    val qrCodeText = call.argument<String?>("qr_code_text")
+//    val qrCodeText = call.argument<String?>("qr_code_text")
     val gson = Gson()
     val printableReceipt = gson.fromJson(gson.toJson(printableReceiptMap), PrintableReceipt::class.java)
-    if (printer == null) {
-      val selectedPrinter = BluetoothPrintersConnections().list?.first { printer -> printer.device.address == printableReceipt.printerId }
-      if (selectedPrinter != null) {
-        printer = EscPosPrinter(selectedPrinter.connect(), 203, 48f, 32)
-      }
+    Log.d("ThermalPrinter", "connection status ${isConnectedToPrinter}")
+    if (myBinder == null) {
+      logger("Calling bind service")
+      val intent = Intent(context, PosprinterService::class.java)
+      context.bindService(intent, mSerconnection, Context.BIND_AUTO_CREATE)
     }
-    printer?.printFormattedText(printableReceipt.generatePrintableString(qrCodeText = qrCodeText))
+    if (!isConnectedToPrinter) {
+      connectBT(printableReceipt.printerId)
+    }
+//    if (printer == null) {
+//      val selectedPrinter = BluetoothPrintersConnections().list?.first { printer -> printer.device.address == printableReceipt.printerId }
+//      if (selectedPrinter != null) {
+////        printer = EscPosPrinter(selectedPrinter.connect(), 203, 48f, 32)
+//        connectBT(selectedPrinter.device.address)
+//
+//      }
+//    }
+
+//    printer?.printFormattedText(printableReceipt.generatePrintableString(qrCodeText = qrCodeText))
+    if (isConnectedToPrinter) {
+      Log.d("ThermalPrinter", "Invoking printText()")
+      printText()
+    }
     result.success(true)
+  }
+
+  private fun connectBT(address: String) {
+    logger("Calling connect Bluetooth")
+    logger("mBinder is $myBinder")
+      myBinder?.ConnectBtPort(address, object : TaskCallback {
+        override fun OnSucceed() {
+          isConnectedToPrinter = true
+        }
+        override fun OnFailed() {
+
+        }
+      })
+  }
+
+  private fun printText() {
+
+      myBinder?.WriteSendData(object : TaskCallback {
+        override fun OnSucceed() {
+          Toast.makeText(
+            context,
+            "Printing text",
+            Toast.LENGTH_SHORT
+          ).show()
+        }
+
+        override fun OnFailed() {
+          Toast.makeText(
+            context,
+            "Error printing text, connection failes",
+            Toast.LENGTH_SHORT
+          ).show()
+        }
+      }, ProcessData {
+        val list: MutableList<ByteArray> = ArrayList()
+        //设置标签纸大小
+        list.add(DataForSendToPrinterTSC.sizeBymm(50.0, 30.0))
+        //设置间隙
+        list.add(DataForSendToPrinterTSC.gapBymm(2.0, 0.0))
+        //清除缓存
+        list.add(DataForSendToPrinterTSC.cls())
+        //设置方向
+        list.add(DataForSendToPrinterTSC.direction(0))
+        //线条
+        //                    list.add(DataForSendToPrinterTSC.bar(10,10,200,3));
+        //条码
+        //                    list.add(DataForSendToPrinterTSC.barCode(10,15,"128",100,1,0,2,2,"abcdef12345"));
+        //文本
+        list.add(DataForSendToPrinterTSC.text(10, 30, "TSS24.BF2", 0, 1, 1, "abcasdjknf"))
+        //打印
+        list.add(DataForSendToPrinterTSC.print(1))
+        list
+      })
+
   }
 
   @RequiresApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
@@ -171,5 +262,5 @@ class FlutterThermalPrinterPlugin: FlutterPlugin, MethodCallHandler, ActivityAwa
   override fun onDetachedFromActivity() {
     activity = null
   }
-
 }
+

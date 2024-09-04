@@ -61,7 +61,6 @@ class _MyAppState extends State<MyApp> {
         floatingActionButton: FloatingActionButton(
           onPressed: () async {
             final p = await FlutterThermalPrinter.getAllPairedDevices;
-            p[0].connect();
             // await Future.delayed(Duration(seconds: 5));
             p[0].printReceipt(PrintableReceipt.fromJson(jsonDecode(json)),
                 qrCodeText:
@@ -76,7 +75,7 @@ class _MyAppState extends State<MyApp> {
 
 var json = """
     {
-        "printer_id": "66:12:A5:6B:97:46",
+        "printer_id": "86:67:7A:00:15:A8",
         "order_id": "b0869d",
         "datetime": "27/06/2022 15:06PM UTC",
         "delivery_type": "SMART_BOX_DELIVERY",
