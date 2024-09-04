@@ -3,20 +3,24 @@ package com.example.flutter_thermal_printer
 
 import android.app.Activity
 import android.bluetooth.BluetoothAdapter
+import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothManager
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
+import android.content.pm.PackageManager
 import android.os.Build
 import android.os.IBinder
 import android.util.Log
 import android.widget.Toast
 import androidx.annotation.NonNull
 import androidx.annotation.RequiresApi
+import androidx.core.app.ActivityCompat
 import androidx.core.app.ActivityCompat.startActivityForResult
 import androidx.core.content.ContextCompat.getSystemService
 import com.dantsu.escposprinter.EscPosPrinter
+import com.dantsu.escposprinter.connection.bluetooth.BluetoothConnection
 import com.dantsu.escposprinter.connection.bluetooth.BluetoothPrintersConnections
 import com.example.flutter_thermal_printer.models.BluetoothPrinter
 import com.example.flutter_thermal_printer.models.PrintableReceipt
@@ -73,32 +77,66 @@ class FlutterThermalPrinterPlugin: FlutterPlugin, MethodCallHandler, ActivityAwa
     context = flutterPluginBinding.applicationContext
   }
 
-  @RequiresApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
+  @RequiresApi(Build.VERSION_CODES.S)
   private fun initialise() {
+    makeLog("Asking bluetooth permissions")
+    requestBluetoothPermission()
     makeLog("Initialising Bluetooth manager and adapter")
     bluetoothManager = getSystemService(context, BluetoothManager::class.java)
     bluetoothAdapter = bluetoothManager?.adapter
     if (bluetoothAdapter == null) {
       Toast.makeText(context, "Bluetooth adapter not found", Toast.LENGTH_SHORT).show()
-    } else {
-      makeLog("starting activity for bluetooth action intent")
+    } else if (!bluetoothAdapter!!.isEnabled) {
+      makeLog("Enabling bluetooth for connection with printer")
       val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
       startActivityForResult(activity!!,  enableBtIntent, 1, null)
     }
   }
 
-  private fun getAllPairedDevices(@NonNull call: MethodCall, @NonNull result: Result) {
-    val pairedPrinters = BluetoothPrintersConnections().list
+  @RequiresApi(Build.VERSION_CODES.S)
+  private fun requestBluetoothPermission() {
+    if (ActivityCompat.checkSelfPermission(
+        context,
+        android.Manifest.permission.BLUETOOTH_SCAN
+      ) != PackageManager.PERMISSION_GRANTED || ActivityCompat.checkSelfPermission(
+        context,
+        android.Manifest.permission.BLUETOOTH_CONNECT
+      ) != PackageManager.PERMISSION_GRANTED
+    ) {
+      ActivityCompat.requestPermissions(
+        activity!!,
+        arrayOf<String>(
+          android.Manifest.permission.BLUETOOTH_SCAN,
+          android.Manifest.permission.BLUETOOTH_CONNECT
+        ),
+        1024
+      )
+    }
+  }
+
+  @RequiresApi(Build.VERSION_CODES.S)
+  private fun getAllPairedDevices(call: MethodCall, result: Result) {
+    if (bluetoothAdapter == null || bluetoothManager == null) {
+      return
+    }
+    if (ActivityCompat.checkSelfPermission(context, android.Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+      requestBluetoothPermission()
+      return
+    }
+    if (!bluetoothAdapter!!.isDiscovering) {
+      bluetoothAdapter!!.startDiscovery()
+    }
+    val allPairedDevices = bluetoothAdapter!!.bondedDevices
+
     val bluetoothPrintersMap = mutableListOf<Map<String, Any>>()
-    if (pairedPrinters != null && pairedPrinters.isNotEmpty()) {
-      for (p in BluetoothPrintersConnections().list!!) {
-        bluetoothPrintersMap.add(BluetoothPrinter(p.device.address, p.device.name).toJson())
+    for (device in allPairedDevices) {
+      val majorDeviceClass: Int = device.bluetoothClass.majorDeviceClass
+      val deviceClass: Int = device.bluetoothClass.deviceClass
+      if (majorDeviceClass == 1536 && (deviceClass == 1664 || deviceClass == 1536)) {
+        bluetoothPrintersMap.add(BluetoothPrinter(device.address, device.name).toJson())
       }
-      result.success(bluetoothPrintersMap)
     }
-    else {
-      result.success(listOf<BluetoothPrinter>())
-    }
+    result.success(bluetoothPrintersMap)
   }
 
   private fun connectToPrinterByAddress(@NonNull call: MethodCall, @NonNull result: Result) {
