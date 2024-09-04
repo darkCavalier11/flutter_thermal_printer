@@ -20,7 +20,6 @@ import androidx.core.app.ActivityCompat
 import androidx.core.app.ActivityCompat.startActivityForResult
 import androidx.core.content.ContextCompat.getSystemService
 import com.dantsu.escposprinter.EscPosPrinter
-import com.dantsu.escposprinter.connection.bluetooth.BluetoothPrintersConnections
 import com.example.flutter_thermal_printer.models.BluetoothPrinter
 import com.example.flutter_thermal_printer.models.PrintableReceipt
 import com.google.gson.Gson
@@ -179,23 +178,28 @@ class FlutterThermalPrinterPlugin: FlutterPlugin, MethodCallHandler, ActivityAwa
 
   }
 
-  private fun isConnected(@NonNull call: MethodCall, @NonNull result: Result) {
-    val address = call.argument<String>("address")
-    if (printer == null) {
+  private fun isConnectedToBluetoothThermalPrinter(call: MethodCall, result: Result) {
+    val address = call.argument<String>("bluetooth_printer_address")
+    if (connectedThermalPrinter == null) {
       return result.success(false)
     }
-    result.success(connectedPrinterAddress == address)
+    result.success(connectedThermalPrinter?.address == address)
   }
 
-  private fun disconnect(@NonNull call: MethodCall, @NonNull result: Result) {
-    val address = call.argument<String>("address")
-    val selectedPrinter = BluetoothPrintersConnections().list?.first { printer -> printer.device.address == address }
-    if (selectedPrinter == null) {
+  private fun disconnectBluetoothThermalPrinter(call: MethodCall, result: Result) {
+    if (connectedThermalPrinter == null) {
       return
     }
-    selectedPrinter.disconnect()
-    printer = null
-    connectedPrinterAddress = null
+    val address = call.argument<String>("bluetooth_printer_address")
+    myBinder!!.RemovePrinter(connectedThermalPrinter?.name, object : TaskCallback {
+      override fun OnSucceed() {
+        connectedThermalPrinter = null
+        result.success(true)
+      }
+      override fun OnFailed() {
+        result.success(false)
+      }
+    })
   }
 
   private fun printString(@NonNull call: MethodCall, @NonNull result: Result) {
@@ -301,9 +305,9 @@ class FlutterThermalPrinterPlugin: FlutterPlugin, MethodCallHandler, ActivityAwa
     when (call.method) {
       "initialise" -> initialise()
       "getAllPairedDevices" -> getAllPairedDevices(call, result)
-      "connectToPrinterByAddress" -> connectToBluetoothPrinterByAddress(call, result)
-      "isConnected" -> isConnected(call, result)
-      "disconnect" -> disconnect(call, result)
+      "connectToBluetoothPrinterByAddress" -> connectToBluetoothPrinterByAddress(call, result)
+      "isConnectedToBluetoothThermalPrinter" -> isConnectedToBluetoothThermalPrinter(call, result)
+      "disconnectBluetoothThermalPrinter" -> disconnectBluetoothThermalPrinter(call, result)
       "printString" -> printString(call, result)
       "printReceipt" -> printReceipt(call, result)
       else -> result.notImplemented()
