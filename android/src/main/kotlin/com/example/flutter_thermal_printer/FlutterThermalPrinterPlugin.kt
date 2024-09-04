@@ -3,6 +3,7 @@ package com.example.flutter_thermal_printer
 
 import android.app.Activity
 import android.bluetooth.BluetoothAdapter
+import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothManager
 import android.content.ComponentName
 import android.content.Context
@@ -54,6 +55,8 @@ class FlutterThermalPrinterPlugin: FlutterPlugin, MethodCallHandler, ActivityAwa
 
   private var myBinder: IMyBinder? = null
   private var isConnectedToPrinter = false
+  private var thermalPrinterDevices = ArrayList<BluetoothDevice>()
+  private var connectedThermalPrinter: BluetoothDevice? = null
   private var mSerconnection: ServiceConnection = object : ServiceConnection {
     override fun onServiceConnected(name: ComponentName, service: IBinder) {
       myBinder = service as IMyBinder
@@ -131,6 +134,7 @@ class FlutterThermalPrinterPlugin: FlutterPlugin, MethodCallHandler, ActivityAwa
       val majorDeviceClass: Int = device.bluetoothClass.majorDeviceClass
       val deviceClass: Int = device.bluetoothClass.deviceClass
       if (majorDeviceClass == 1536 && (deviceClass == 1664 || deviceClass == 1536)) {
+        thermalPrinterDevices.add(device)
         bluetoothPrintersMap.add(BluetoothPrinter(device.address, device.name).toJson())
       }
     }
@@ -139,23 +143,40 @@ class FlutterThermalPrinterPlugin: FlutterPlugin, MethodCallHandler, ActivityAwa
 
   private fun connectToBluetoothPrinterByAddress(call: MethodCall, result: Result) {
     val address = call.argument<String>("bluetooth_printer_address")
-    val selectedPrinter = BluetoothPrintersConnections().list?.first { printer -> printer.device.address == address }
-    if (selectedPrinter != null) {
-      printer = EscPosPrinter(selectedPrinter.connect(), 203, 48f, 32)
-      connectedPrinterAddress = address
-      // printing an empty line to make sure it is connected
-      printer?.printFormattedText("[L]\n")
+    try {
+      val selectedPrinter = thermalPrinterDevices.first { bluetoothDevice ->  bluetoothDevice.address == address }
+      logger("Found printer by address $address, trying to connect")
+      if (bluetoothAdapter != null && bluetoothAdapter!!.isDiscovering) {
+        bluetoothAdapter!!.cancelDiscovery()
+      }
+      if (myBinder == null) {
+        logger("myBinder is null, connection failed")
+      }
+      myBinder!!.ConnectBtPort(address, object : TaskCallback {
+        override fun OnSucceed() {
+          logger("Connection successful TaskCallback")
+          isConnectedToPrinter = true
+          connectedThermalPrinter = selectedPrinter
+          result.success(true)
+        }
 
-      val connectedPrinter = BluetoothPrinter(selectedPrinter.device.address, selectedPrinter.device.name)
-      result.success(true)
-    } else {
+        override fun OnFailed() {
+          logger("Connection failed onFailed() TaskCallback")
+          connectedThermalPrinter = null
+          isConnectedToPrinter = false
+          result.success(false)
+        }
+      })
+    } catch (error: Error) {
+      logger("Error connecting printer to address $address: $error")
       result.error(
         "NOT FOUND",
         "Unable to connect to the printer with $address",
-        "Error occured while connecting to the printer with address $address. Make sure printer is on, and paired with the device"
+        "Error occurred while connecting to the printer with address $address. Make sure printer is on, and paired with the device"
       )
       result.success(false)
     }
+
   }
 
   private fun isConnected(@NonNull call: MethodCall, @NonNull result: Result) {
