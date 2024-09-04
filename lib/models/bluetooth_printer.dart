@@ -44,7 +44,7 @@ class BluetoothPrinter {
   Future<bool> printString(String printableString) async {
     try {
       await _channel
-          .invokeMethod("printString", {"printable_string": printableString});
+          .invokeMethod("printStringWithBluetoothPrinter", {"printable_string": printableString});
       return true;
     } catch (e) {
       log(e.toString());

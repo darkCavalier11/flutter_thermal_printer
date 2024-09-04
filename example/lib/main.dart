@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'dart:async';
@@ -62,9 +63,14 @@ class _MyAppState extends State<MyApp> {
           onPressed: () async {
             final p = await FlutterThermalPrinter.getAllBluetoothPairedDevices;
             // await Future.delayed(Duration(seconds: 5));
-            p[0].printReceipt(PrintableReceipt.fromJson(jsonDecode(json)),
-                qrCodeText:
-                    '4lWio0SGdkjrifokjelrjierklekn==@^()))(+_fgjnreklf');
+            // p[0].connect();
+            p[0].printString("Hello");
+            // await p[1].disconnect();
+            //  status = await p[1].isConnected();
+            // log('isConnected : $status');
+            // p[0].printReceipt(PrintableReceipt.fromJson(jsonDecode(json)),
+            //     qrCodeText:
+            //         '4lWio0SGdkjrifokjelrjierklekn==@^()))(+_fgjnreklf');
           },
           child: const Icon(Icons.print),
         ),
