@@ -63,7 +63,7 @@ class _MyAppState extends State<MyApp> {
           onPressed: () async {
             final p = await FlutterThermalPrinter.getAllBluetoothPairedDevices;
             // await Future.delayed(Duration(seconds: 5));
-            // p[0].connect();
+            p[0].connect();
             p[0].printString("Hello");
             // await p[1].disconnect();
             //  status = await p[1].isConnected();

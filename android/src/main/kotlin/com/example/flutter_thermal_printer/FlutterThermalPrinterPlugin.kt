@@ -146,6 +146,10 @@ class FlutterThermalPrinterPlugin: FlutterPlugin, MethodCallHandler, ActivityAwa
 
   private fun connectToBluetoothPrinterByAddress(call: MethodCall, result: Result) {
     val address = call.argument<String>("bluetooth_printer_address")
+    if (connectedThermalPrinter?.address == address) {
+      return;
+    }
+
     try {
       val selectedPrinter = thermalPrinterDevices.first { bluetoothDevice ->  bluetoothDevice.address == address }
       logger("Found printer by address $address, trying to connect")
