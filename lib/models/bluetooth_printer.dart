@@ -5,10 +5,10 @@ import 'package:flutter_thermal_printer/flutter_thermal_printer.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class BluetoothPrinter {
-  final String printerId;
+  final String printerAddress;
   final String printerName;
   BluetoothPrinter({
-    required this.printerId,
+    required this.printerAddress,
     required this.printerName,
   });
   static const MethodChannel _channel =
@@ -16,14 +16,14 @@ class BluetoothPrinter {
 
   factory BluetoothPrinter.fromJson(Map<String, dynamic> json) {
     return BluetoothPrinter(
-      printerId: json['printer_id'],
+      printerAddress: json['printer_address'],
       printerName: json['printer_name'],
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      "printer_id": printerId,
+      "printer_id": printerAddress,
       "printer_name": printerName,
     };
   }
@@ -34,7 +34,7 @@ class BluetoothPrinter {
     if (status.isGranted || status.isLimited) {
       try {
         await _channel.invokeMethod(
-            "connectToPrinterByAddress", {"printer_id": printerId});
+            "connectToBluetoothPrinterByAddress", {"bluetooth_printer_address": printerAddress});
       } catch (e) {
         log(e.toString());
       }
@@ -68,7 +68,7 @@ class BluetoothPrinter {
   Future<bool> isConnected() async {
     try {
       final isConnected =
-          await _channel.invokeMethod("isConnected", {"address": printerId});
+          await _channel.invokeMethod("isConnectedToBluetoothThermalPrinter", {"bluetooth_printer_address": printerAddress});
       return isConnected;
     } catch (e) {
       log(e.toString());
@@ -78,7 +78,7 @@ class BluetoothPrinter {
 
   Future<void> disconnect() async {
     try {
-      await _channel.invokeMethod("disconnect", {"address": printerId});
+      await _channel.invokeMethod("disconnectBluetoothThermalPrinter");
     } catch (e) {
       log(e.toString());
     }
@@ -86,5 +86,5 @@ class BluetoothPrinter {
 
   @override
   String toString() =>
-      'BluetoothPrinter(printerId: $printerId, printerName: $printerName)';
+      'BluetoothPrinter(printerAddress: $printerAddress, printerName: $printerName)';
 }

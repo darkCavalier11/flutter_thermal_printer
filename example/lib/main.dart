@@ -33,7 +33,7 @@ class _MyAppState extends State<MyApp> {
     // Platform messages may fail, so we use a try/catch PlatformException.
     // We also handle the message potentially returning null.
     try {
-      pairedDevices = await FlutterThermalPrinter.getAllPairedDevices;
+      pairedDevices = await FlutterThermalPrinter.getAllBluetoothPairedDevices;
     } on PlatformException {
       pairedDevices = [];
     }
@@ -60,7 +60,7 @@ class _MyAppState extends State<MyApp> {
         ),
         floatingActionButton: FloatingActionButton(
           onPressed: () async {
-            final p = await FlutterThermalPrinter.getAllPairedDevices;
+            final p = await FlutterThermalPrinter.getAllBluetoothPairedDevices;
             // await Future.delayed(Duration(seconds: 5));
             p[0].printReceipt(PrintableReceipt.fromJson(jsonDecode(json)),
                 qrCodeText:

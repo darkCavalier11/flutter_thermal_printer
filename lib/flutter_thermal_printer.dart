@@ -24,9 +24,9 @@ class FlutterThermalPrinter {
     }
   }
 
-  static Future<List<BluetoothPrinter>> get getAllPairedDevices async {
+  static Future<List<BluetoothPrinter>> get getAllBluetoothPairedDevices async {
     final availableDevicesMap =
-        await _channel.invokeMethod("getAllPairedDevices");
+        await _channel.invokeMethod("getAllBluetoothPairedDevices");
     final bluetoothPrinters = <BluetoothPrinter>[];
     for (var printer in availableDevicesMap) {
       bluetoothPrinters

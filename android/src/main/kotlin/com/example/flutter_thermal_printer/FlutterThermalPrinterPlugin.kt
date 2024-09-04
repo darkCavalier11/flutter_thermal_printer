@@ -45,7 +45,6 @@ class FlutterThermalPrinterPlugin: FlutterPlugin, MethodCallHandler, ActivityAwa
   private lateinit var channel : MethodChannel
 
   private var printer: EscPosPrinter? = null
-  private var connectedPrinterAddress: String? = null
 
   private var activity: Activity? = null
   private lateinit var context: Context
@@ -115,7 +114,7 @@ class FlutterThermalPrinterPlugin: FlutterPlugin, MethodCallHandler, ActivityAwa
   }
 
   @RequiresApi(Build.VERSION_CODES.S)
-  private fun getAllPairedDevices(call: MethodCall, result: Result) {
+  private fun getAllBluetoothPairedDevices(call: MethodCall, result: Result) {
     if (bluetoothAdapter == null || bluetoothManager == null) {
       return
     }
@@ -180,6 +179,7 @@ class FlutterThermalPrinterPlugin: FlutterPlugin, MethodCallHandler, ActivityAwa
 
   private fun isConnectedToBluetoothThermalPrinter(call: MethodCall, result: Result) {
     val address = call.argument<String>("bluetooth_printer_address")
+    logger("Checking connection status with printer $address")
     if (connectedThermalPrinter == null) {
       return result.success(false)
     }
@@ -190,7 +190,9 @@ class FlutterThermalPrinterPlugin: FlutterPlugin, MethodCallHandler, ActivityAwa
     if (connectedThermalPrinter == null) {
       return
     }
-    val address = call.argument<String>("bluetooth_printer_address")
+    if (myBinder == null) {
+      logger("myBinder is null, disconnectBluetoothThermalPrinter()")
+    }
     myBinder!!.RemovePrinter(connectedThermalPrinter?.name, object : TaskCallback {
       override fun OnSucceed() {
         connectedThermalPrinter = null
@@ -304,7 +306,7 @@ class FlutterThermalPrinterPlugin: FlutterPlugin, MethodCallHandler, ActivityAwa
     PermissionUtils.askForPermissions(activity!!)
     when (call.method) {
       "initialise" -> initialise()
-      "getAllPairedDevices" -> getAllPairedDevices(call, result)
+      "getAllBluetoothPairedDevices" -> getAllBluetoothPairedDevices(call, result)
       "connectToBluetoothPrinterByAddress" -> connectToBluetoothPrinterByAddress(call, result)
       "isConnectedToBluetoothThermalPrinter" -> isConnectedToBluetoothThermalPrinter(call, result)
       "disconnectBluetoothThermalPrinter" -> disconnectBluetoothThermalPrinter(call, result)

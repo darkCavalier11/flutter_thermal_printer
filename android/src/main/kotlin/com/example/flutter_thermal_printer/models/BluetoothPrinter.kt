@@ -5,6 +5,6 @@ class BluetoothPrinter(private val printerId: String, private val printerName: S
     private var _printerName: String = printerName;
 
     public fun toJson(): Map<String, Any> {
-        return mapOf("printer_id" to _printerId, "printer_name" to _printerName)
+        return mapOf("printer_address" to _printerId, "printer_name" to _printerName)
     }
  }
