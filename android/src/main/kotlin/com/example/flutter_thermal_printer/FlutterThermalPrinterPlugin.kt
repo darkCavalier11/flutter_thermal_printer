@@ -274,8 +274,8 @@ class FlutterThermalPrinterPlugin: FlutterPlugin, MethodCallHandler, ActivityAwa
 
   }
 
-  @RequiresApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
-  override fun onMethodCall(@NonNull call: MethodCall, @NonNull result: Result) {
+  @RequiresApi(Build.VERSION_CODES.S)
+  override fun onMethodCall(call: MethodCall, result: Result) {
     PermissionUtils.askForPermissions(activity!!)
     when (call.method) {
       "initialise" -> initialise()
