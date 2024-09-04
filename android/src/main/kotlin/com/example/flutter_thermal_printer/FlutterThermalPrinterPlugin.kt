@@ -237,7 +237,7 @@ class FlutterThermalPrinterPlugin: FlutterPlugin, MethodCallHandler, ActivityAwa
 
   private fun printReceipt(@NonNull call: MethodCall, @NonNull result: Result) {
     val printableReceiptMap = call.argument<Map<String, Any>>("printable_receipt")
-//    val qrCodeText = call.argument<String?>("qr_code_text")
+    val qrCodeText = call.argument<String?>("qr_code_text")
     val gson = Gson()
     val printableReceipt = gson.fromJson(gson.toJson(printableReceiptMap), PrintableReceipt::class.java)
     Log.d("ThermalPrinter", "connection status ${connectedThermalPrinter}")
