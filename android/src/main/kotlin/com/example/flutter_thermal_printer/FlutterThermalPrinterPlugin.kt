@@ -212,7 +212,8 @@ class FlutterThermalPrinterPlugin: FlutterPlugin, MethodCallHandler, ActivityAwa
   }
 
   private fun printStringWithBluetoothPrinter(call: MethodCall, result: Result) {
-    logger("called printStringWithBluetoothPrinter() with print ${connectedThermalPrinter?.address}")
+    val s = call.argument<String>("printable_string") ?: return
+    logger("called printStringWithBluetoothPrinter() with print ${connectedThermalPrinter?.address} with payload $s")
     if (connectedThermalPrinter != null) {
       myBinder?.WriteSendData(object : TaskCallback {
         override fun OnSucceed() {
@@ -225,7 +226,7 @@ class FlutterThermalPrinterPlugin: FlutterPlugin, MethodCallHandler, ActivityAwa
       }, ProcessData {
         val list: MutableList<ByteArray> = java.util.ArrayList()
         list.add(DataForSendToPrinterPos58.initializePrinter())
-        list.add("Hello".encodeToByteArray())
+        list.add(s.encodeToByteArray())
         list.add(DataForSendToPrinterPos58.printAndFeedLine())
         list
       })
@@ -235,16 +236,15 @@ class FlutterThermalPrinterPlugin: FlutterPlugin, MethodCallHandler, ActivityAwa
     }
   }
 
-  private fun printReceipt(@NonNull call: MethodCall, @NonNull result: Result) {
+  private fun printReceipt(call: MethodCall, result: Result) {
     val printableReceiptMap = call.argument<Map<String, Any>>("printable_receipt")
     val qrCodeText = call.argument<String?>("qr_code_text")
     val gson = Gson()
     val printableReceipt = gson.fromJson(gson.toJson(printableReceiptMap), PrintableReceipt::class.java)
-    Log.d("ThermalPrinter", "connection status ${connectedThermalPrinter}")
-    if (myBinder == null) {
-      logger("Calling bind service")
-      val intent = Intent(context, PosprinterService::class.java)
-      context.bindService(intent, mSerconnection, Context.BIND_AUTO_CREATE)
+    Log.d("ThermalPrinter", "connected thermal printer $connectedThermalPrinter")
+    if (connectedThermalPrinter == null) {
+      result.error("NO PRINTER FOUND", "connect to printer before print", "Try to connect to printer before printing.")
+      return
     }
 //    if (!isConnectedToPrinter) {
 //      connectBT(printableReceipt.printerId)

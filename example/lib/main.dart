@@ -64,7 +64,7 @@ class _MyAppState extends State<MyApp> {
             final p = await FlutterThermalPrinter.getAllBluetoothPairedDevices;
             // await Future.delayed(Duration(seconds: 5));
             p[0].connect();
-            p[0].printString("Hello");
+            p[0].printString("Sumit");
             // await p[1].disconnect();
             //  status = await p[1].isConnected();
             // log('isConnected : $status');
