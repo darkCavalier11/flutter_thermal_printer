@@ -55,14 +55,14 @@ class BluetoothPrinter {
   Future<bool> printReceipt(PrintableReceipt receipt,
       {String? qrCodeText}) async {
     try {
-      await _channel.invokeMethod(
+      final result = await _channel.invokeMethod<bool>(
         "printReceiptWithBluetoothPrinter",
         {
           "printable_receipt": receipt.toJson(),
           "qr_code_text": qrCodeText,
         },
       );
-      return true;
+      return result ?? false;
     } catch (e) {
       log(e.toString());
       return false;
