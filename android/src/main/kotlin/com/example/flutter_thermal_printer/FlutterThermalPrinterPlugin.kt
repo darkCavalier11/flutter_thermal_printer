@@ -22,12 +22,6 @@ import androidx.core.content.ContextCompat.getSystemService
 import com.example.flutter_thermal_printer.models.BluetoothPrinter
 import com.example.flutter_thermal_printer.models.PrintableReceipt
 import com.google.gson.Gson
-import com.google.zxing.EncodeHintType
-import com.google.zxing.WriterException
-import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel
-import com.google.zxing.qrcode.encoder.ByteMatrix
-import com.google.zxing.qrcode.encoder.Encoder
-import com.google.zxing.qrcode.encoder.QRCode
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
@@ -40,9 +34,8 @@ import net.posprinter.posprinterface.ProcessData
 import net.posprinter.posprinterface.TaskCallback
 import net.posprinter.service.PosprinterService
 import net.posprinter.utils.DataForSendToPrinterPos58
-import java.util.EnumMap
-import kotlin.math.ceil
-import kotlin.math.roundToInt
+import net.posprinter.utils.DataForSendToPrinterTSC
+
 
 /** FlutterThermalPrinterPlugin */
 class FlutterThermalPrinterPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
@@ -58,7 +51,7 @@ class FlutterThermalPrinterPlugin: FlutterPlugin, MethodCallHandler, ActivityAwa
   private var bluetoothManager: BluetoothManager? = null
 
   private var myBinder: IMyBinder? = null
-  private var thermalPrinterDevices = ArrayList<BluetoothDevice>()
+  private var thermalPrinterDevices = mutableSetOf<BluetoothDevice>()
   private var connectedThermalPrinter: BluetoothDevice? = null
   private var mSerconnection: ServiceConnection = object : ServiceConnection {
     override fun onServiceConnected(name: ComponentName, service: IBinder) {
@@ -266,6 +259,62 @@ class FlutterThermalPrinterPlugin: FlutterPlugin, MethodCallHandler, ActivityAwa
     })
   }
 
+  private fun printOfflineOrderLabel(call: MethodCall, result: Result) {
+    val qrCodeText = call.argument<String>("qr_code_text")
+    val descText = call.argument<String>("desc_text")
+
+    if (connectedThermalPrinter == null) {
+      result.error("NO PRINTER FOUND", "connect to printer before print", "Try to connect to printer before printing.")
+      return
+    }
+    myBinder!!.WriteSendData(object : TaskCallback {
+      override fun OnSucceed() {
+      }
+
+      override fun OnFailed() {
+      }
+    }, ProcessData {
+      // width = 4.0 inch, height = 2.0 inch
+      val width = 2.54 * 10 * 4.0
+      val height = 2.54 * 10 * 2.0
+      // padding of 50mm from all sides
+      val padding = 50
+
+      val list: MutableList<ByteArray> = ArrayList()
+      list.add(DataForSendToPrinterTSC.sizeBymm(2.54 * 4.0 * 10, 2.54 * 2.0 * 10))
+      list.add(DataForSendToPrinterTSC.direction(0))
+      list.add(DataForSendToPrinterTSC.cls())
+      list.add(DataForSendToPrinterTSC.qrCode(500, 90, "M", 8, "A", 0, "M1", "S3", qrCodeText))
+      //文本,简体中文是TSS24.BF2,可参考编程手册中字体的代号
+      list.add(DataForSendToPrinterTSC.text(75, 50, "monospace", 0, 2, 1, "Changepay MMS Technology"))
+      val descSplitContent = splitLineWithMaxCharCount(descText!!, 36)
+      for (i in descSplitContent.indices) {
+        list.add(DataForSendToPrinterTSC.text(40, 100 + i*30, "monospace", 0, 1, 1, descSplitContent[i]))
+      }
+      list.add(DataForSendToPrinterTSC.print(1, 1))
+      list
+    })
+
+  }
+
+  private fun splitLineWithMaxCharCount(s: String, n: Int = 25): List<String> {
+    val result = mutableListOf<String>()
+    var current = String()
+    val splitArray = s.split(" ")
+
+    for (item in splitArray) {
+      if (current.length + item.length + 1 > n) {
+        result.add(current)
+        current = "$item "
+      } else {
+        current += "$item "
+      }
+    }
+    if (current.isNotEmpty()) {
+      result.add(current)
+    }
+    return result
+  }
 
 
   @RequiresApi(Build.VERSION_CODES.S)
@@ -278,6 +327,7 @@ class FlutterThermalPrinterPlugin: FlutterPlugin, MethodCallHandler, ActivityAwa
       "disconnectBluetoothThermalPrinter" -> disconnectBluetoothThermalPrinter(call, result)
       "printStringWithBluetoothPrinter" -> printStringWithBluetoothPrinter(call, result)
       "printReceiptWithBluetoothPrinter" -> printReceiptWithBluetoothPrinter(call, result)
+      "printOfflineOrderLabel" -> printOfflineOrderLabel(call, result)
       else -> result.notImplemented()
     }
   }

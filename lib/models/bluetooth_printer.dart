@@ -69,6 +69,25 @@ class BluetoothPrinter {
     }
   }
 
+  Future<bool> printOfflineOrderLabel({
+    required String qrCodeText,
+    required String descText,
+  }) async {
+    try {
+      final result = await _channel.invokeMethod<bool>(
+        "printOfflineOrderLabel",
+        {
+          "qr_code_text": qrCodeText,
+          "desc_text": descText,
+        },
+      );
+      return result ?? false;
+    } catch (e) {
+      log(e.toString());
+      return false;
+    }
+  }
+
   // This method checks if the printer is connected to any printer.
   Future<bool> isConnected() async {
     try {
