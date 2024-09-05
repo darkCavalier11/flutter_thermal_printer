@@ -67,7 +67,7 @@ class FlutterThermalPrinterPlugin: FlutterPlugin, MethodCallHandler, ActivityAwa
     Log.d("ThermalPrinter", "$text")
   }
 
-  override fun onAttachedToEngine(@NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
+  override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
     channel = MethodChannel(flutterPluginBinding.binaryMessenger, "flutter_thermal_printer")
     channel.setMethodCallHandler(this)
     context = flutterPluginBinding.applicationContext
@@ -284,15 +284,14 @@ class FlutterThermalPrinterPlugin: FlutterPlugin, MethodCallHandler, ActivityAwa
       val padding = 50
 
       val list: MutableList<ByteArray> = ArrayList()
-      list.add(DataForSendToPrinterTSC.sizeBymm(2.54 * 4.0 * 10, 2.54 * 2.0 * 10))
+      list.add(DataForSendToPrinterTSC.sizeBymm(width, height))
       list.add(DataForSendToPrinterTSC.direction(0))
       list.add(DataForSendToPrinterTSC.cls())
-      list.add(DataForSendToPrinterTSC.qrCode(500, 90, "M", 8, "A", 0, "M1", "S3", qrCodeText))
-      //文本,简体中文是TSS24.BF2,可参考编程手册中字体的代号
-      list.add(DataForSendToPrinterTSC.text(75, 50, "monospace", 0, 2, 1, "Changepay MMS Technology"))
+      list.add(DataForSendToPrinterTSC.qrCode(550, 90, "M", 6, "A", 0, "M1", "S3", qrCodeText))
+      list.add(DataForSendToPrinterTSC.text(75, padding, "monospace", 0, 2, 1, "Changepay MMS Technology"))
       val descSplitContent = splitLineWithMaxCharCount(descText!!, 36)
       for (i in descSplitContent.indices) {
-        list.add(DataForSendToPrinterTSC.text(40, 100 + i*30, "monospace", 0, 1, 1, descSplitContent[i]))
+        list.add(DataForSendToPrinterTSC.text(45, 100 + i*30, "monospace", 0, 1, 1, descSplitContent[i]))
       }
       list.add(DataForSendToPrinterTSC.print(1, 1))
       list

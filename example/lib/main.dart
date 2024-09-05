@@ -65,7 +65,7 @@ class _MyAppState extends State<MyApp> {
             // await Future.delayed(Duration(seconds: 5));
             p[0].connect();
             p[0].printOfflineOrderLabel(
-              qrCodeText: "4lWio0SGdkjrifokjelrjierklekn==@^()))(+_fgjnreklf",
+              qrCodeText: "SqXXsttz6ecRsJwoa7reAdmuuk7L2TNs5iYwnbiiev3lmV+ZPlmwe6d3wVdEK+lQw7FsxcFEyu2vX7lL0gnThIg2anO6Ocl5cPT7dDGALro=",
               descText: "Thank You for recharging with Rs. 1000 at 5 star bakery. Your credits will expire on 25 Apr 2025. Show this QR to be able to place orders at the Business or use the ChangePay app to place the orders. You can also access this QR on the ChangePay app in the Business Catalog screen. For any queries reach out to +917750860057. ",
             );
             // await p[1].disconnect();
