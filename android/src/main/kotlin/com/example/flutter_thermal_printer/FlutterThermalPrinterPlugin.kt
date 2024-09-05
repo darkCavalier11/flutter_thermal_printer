@@ -22,6 +22,12 @@ import androidx.core.content.ContextCompat.getSystemService
 import com.example.flutter_thermal_printer.models.BluetoothPrinter
 import com.example.flutter_thermal_printer.models.PrintableReceipt
 import com.google.gson.Gson
+import com.google.zxing.EncodeHintType
+import com.google.zxing.WriterException
+import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel
+import com.google.zxing.qrcode.encoder.ByteMatrix
+import com.google.zxing.qrcode.encoder.Encoder
+import com.google.zxing.qrcode.encoder.QRCode
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.embedding.engine.plugins.activity.ActivityAware
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
@@ -34,8 +40,9 @@ import net.posprinter.posprinterface.ProcessData
 import net.posprinter.posprinterface.TaskCallback
 import net.posprinter.service.PosprinterService
 import net.posprinter.utils.DataForSendToPrinterPos58
-import net.posprinter.utils.DataForSendToPrinterPos76
-import net.posprinter.utils.DataForSendToPrinterPos80
+import java.util.EnumMap
+import kotlin.math.ceil
+import kotlin.math.roundToInt
 
 /** FlutterThermalPrinterPlugin */
 class FlutterThermalPrinterPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
@@ -317,7 +324,7 @@ class FlutterThermalPrinterPlugin: FlutterPlugin, MethodCallHandler, ActivityAwa
       if (qrCodeText != null) {
         list.add(DataForSendToPrinterPos58.initializePrinter())
         list.add(DataForSendToPrinterPos58.selectAlignment(1))
-        list.add(DataForSendToPrinterPos80.printQRcode(2, 4, "Hello"))
+        list.add(qrCodeDataToByteArray(qrCodeText, 200)!!)
         list.add(DataForSendToPrinterPos58.printAndFeedLine())
       }
 
@@ -330,9 +337,81 @@ class FlutterThermalPrinterPlugin: FlutterPlugin, MethodCallHandler, ActivityAwa
     result.success(true)
   }
 
+  private fun qrCodeDataToByteArray(data: String?, size: Int): ByteArray? {
+    var byteMatrix: ByteMatrix? = null
+    try {
+      val hints = EnumMap<EncodeHintType, Any>(
+        EncodeHintType::class.java
+      )
+      hints[EncodeHintType.CHARACTER_SET] = "UTF-8"
+      val code: QRCode = Encoder.encode(data, ErrorCorrectionLevel.L, hints)
+      byteMatrix = code.matrix
+    } catch (e: WriterException) {
+      e.printStackTrace()
+      return null
+    }
+    if (byteMatrix == null) {
+      return null
+    }
+    val width = byteMatrix.width
+    val height = byteMatrix.height
+    val coefficient = (size.toFloat() / width.toFloat()).roundToInt()
+    val imageWidth = width * coefficient
+    val imageHeight = height * coefficient
+    val bytesByLine = ceil((imageWidth.toFloat() / 8f).toDouble()).toInt()
+    var i = 8
+    if (coefficient < 1) {
+      return initGSv0Command(0, 0)
+    }
+    val imageBytes = initGSv0Command(bytesByLine, imageHeight)
+    for (y in 0 until height) {
+      val lineBytes = ByteArray(bytesByLine)
+      var x = -1
+      var multipleX = coefficient
+      var isBlack = false
+      for (j in 0 until bytesByLine) {
+        var b = 0
+        for (k in 0..7) {
+          if (multipleX == coefficient) {
+            isBlack = ++x < width && byteMatrix[x, y].toInt() == 1
+            multipleX = 0
+          }
+          if (isBlack) {
+            b = b or (1 shl 7 - k)
+          }
+          ++multipleX
+        }
+        lineBytes[j] = b.toByte()
+      }
+      for (multipleY in 0 until coefficient) {
+        if (imageBytes != null) {
+          System.arraycopy(lineBytes, 0, imageBytes, i, lineBytes.size)
+        }
+        i += lineBytes.size
+      }
+    }
+    return imageBytes
+  }
+
+  private fun initGSv0Command(bytesByLine: Int, bitmapHeight: Int): ByteArray? {
+    val xH = bytesByLine / 256
+    val xL = bytesByLine - xH * 256
+    val yH = bitmapHeight / 256
+    val yL = bitmapHeight - yH * 256
+    val imageBytes = ByteArray(8 + bytesByLine * bitmapHeight)
+    imageBytes[0] = 0x1D
+    imageBytes[1] = 0x76
+    imageBytes[2] = 0x30
+    imageBytes[3] = 0x00
+    imageBytes[4] = xL.toByte()
+    imageBytes[5] = xH.toByte()
+    imageBytes[6] = yL.toByte()
+    imageBytes[7] = yH.toByte()
+    return imageBytes
+  }
+
   @RequiresApi(Build.VERSION_CODES.S)
   override fun onMethodCall(call: MethodCall, result: Result) {
-//    PermissionUtils.askForPermissions(activity!!)
     when (call.method) {
       "initialise" -> initialise()
       "getAllBluetoothPairedDevices" -> getAllBluetoothPairedDevices(call, result)

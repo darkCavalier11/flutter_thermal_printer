@@ -27,7 +27,7 @@ apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 
 android {
-    compileSdkVersion 31
+    compileSdkVersion 34
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -49,7 +49,7 @@ android {
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-    implementation 'com.github.DantSu:ESCPOS-ThermalPrinter-Android:3.2.0'
+    implementation 'com.google.zxing:core:3.2.0'
     implementation 'com.google.code.gson:gson:2.8.7'
     implementation files('/Users/sumit/Desktop/flutter_thermal_printer/android/PosPrinterSDK.jar')
 }
