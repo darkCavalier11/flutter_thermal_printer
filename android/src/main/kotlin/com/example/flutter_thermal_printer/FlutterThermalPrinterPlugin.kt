@@ -50,12 +50,12 @@ class FlutterThermalPrinterPlugin: FlutterPlugin, MethodCallHandler, ActivityAwa
   private var bluetoothAdapter: BluetoothAdapter? = null
   private var bluetoothManager: BluetoothManager? = null
 
-  private var myBinder: IMyBinder? = null
+  private var bluetoothPrintBinder: IMyBinder? = null
   private var thermalPrinterDevices = mutableSetOf<BluetoothDevice>()
   private var connectedThermalPrinter: BluetoothDevice? = null
-  private var mSerconnection: ServiceConnection = object : ServiceConnection {
+  private var bluetoothServiceConnection: ServiceConnection = object : ServiceConnection {
     override fun onServiceConnected(name: ComponentName, service: IBinder) {
-      myBinder = service as IMyBinder
+      bluetoothPrintBinder = service as IMyBinder
       logger("onServiceConnected(name: ComponentName, service: IBinder)")
     }
 
@@ -73,7 +73,7 @@ class FlutterThermalPrinterPlugin: FlutterPlugin, MethodCallHandler, ActivityAwa
     context = flutterPluginBinding.applicationContext
     //bind service，get imyBinder
     val intent: Intent = Intent(context, PosprinterService::class.java)
-    context.bindService(intent, mSerconnection, Context.BIND_AUTO_CREATE)
+    context.bindService(intent, bluetoothServiceConnection, Context.BIND_AUTO_CREATE)
   }
 
   @RequiresApi(Build.VERSION_CODES.S)
@@ -156,10 +156,10 @@ class FlutterThermalPrinterPlugin: FlutterPlugin, MethodCallHandler, ActivityAwa
       if (bluetoothAdapter != null && bluetoothAdapter!!.isDiscovering) {
         bluetoothAdapter!!.cancelDiscovery()
       }
-      if (myBinder == null) {
+      if (bluetoothPrintBinder == null) {
         logger("myBinder is null, connection failed")
       }
-      myBinder!!.ConnectBtPort(address, object : TaskCallback {
+      bluetoothPrintBinder!!.ConnectBtPort(address, object : TaskCallback {
         override fun OnSucceed() {
           logger("Connection successful TaskCallback")
           connectedThermalPrinter = selectedPrinter
@@ -197,10 +197,10 @@ class FlutterThermalPrinterPlugin: FlutterPlugin, MethodCallHandler, ActivityAwa
     if (connectedThermalPrinter == null) {
       return
     }
-    if (myBinder == null) {
+    if (bluetoothPrintBinder == null) {
       logger("myBinder is null, disconnectBluetoothThermalPrinter()")
     }
-    myBinder!!.RemovePrinter(connectedThermalPrinter?.name, object : TaskCallback {
+    bluetoothPrintBinder!!.RemovePrinter(connectedThermalPrinter?.name, object : TaskCallback {
       override fun OnSucceed() {
         connectedThermalPrinter = null
         result.success(true)
@@ -215,7 +215,7 @@ class FlutterThermalPrinterPlugin: FlutterPlugin, MethodCallHandler, ActivityAwa
     val s = call.argument<String>("printable_string") ?: return
     logger("called printStringWithBluetoothPrinter() with print ${connectedThermalPrinter?.address} with payload $s")
     if (connectedThermalPrinter != null) {
-      myBinder?.WriteSendData(object : TaskCallback {
+      bluetoothPrintBinder?.WriteSendData(object : TaskCallback {
         override fun OnSucceed() {
           logger("printStringWithBluetoothPrinter() successfully sent data for printing")
           result.success(true)
@@ -248,7 +248,7 @@ class FlutterThermalPrinterPlugin: FlutterPlugin, MethodCallHandler, ActivityAwa
       result.error("NO PRINTER FOUND", "connect to printer before print", "Try to connect to printer before printing.")
       return
     }
-    myBinder?.WriteSendData(object : TaskCallback {
+    bluetoothPrintBinder?.WriteSendData(object : TaskCallback {
       override fun OnSucceed() {
         logger("printStringWithBluetoothPrinter() successfully sent data for printing")
       }
@@ -270,7 +270,7 @@ class FlutterThermalPrinterPlugin: FlutterPlugin, MethodCallHandler, ActivityAwa
       result.error("NO PRINTER FOUND", "connect to printer before print", "Try to connect to printer before printing.")
       return
     }
-    myBinder!!.WriteSendData(object : TaskCallback {
+    bluetoothPrintBinder!!.WriteSendData(object : TaskCallback {
       override fun OnSucceed() {
       }
 
