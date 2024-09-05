@@ -78,6 +78,9 @@ class FlutterThermalPrinterPlugin: FlutterPlugin, MethodCallHandler, ActivityAwa
 
   @RequiresApi(Build.VERSION_CODES.S)
   private fun initialise() {
+    if (bluetoothAdapter != null) {
+      return
+    }
     logger("Asking bluetooth permissions")
     requestBluetoothPermission()
     logger("Initialising Bluetooth manager and adapter")
