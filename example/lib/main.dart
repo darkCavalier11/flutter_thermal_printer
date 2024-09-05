@@ -91,6 +91,12 @@ var json = """
                 "quantity": 2,
                 "price": 28000,
                 "total": 56000
+            },
+            {
+                "name": "Kalakand sn jsjndn jsd sndjns dsdjmsjd",
+                "quantity": 5585,
+                "price": 2800000,
+                "total": 56000000
             }
         ],
         "other_charges": [

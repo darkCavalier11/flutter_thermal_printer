@@ -260,71 +260,72 @@ class FlutterThermalPrinterPlugin: FlutterPlugin, MethodCallHandler, ActivityAwa
       }
     }, ProcessData {
       val list: MutableList<ByteArray> = java.util.ArrayList()
-//      list.add(DataForSendToPrinterPos58.initializePrinter())
-//      list.add(DataForSendToPrinterPos58.selectAlignment(1))
-//      list.add(DataForSendToPrinterPos58.selectCharacterSize(18))
-//      list.add(printableReceipt.orderId.encodeToByteArray())
-//      list.add(DataForSendToPrinterPos58.printAndFeedLine())
-//
-//      list.add(DataForSendToPrinterPos58.selectCharacterSize(16))
-//      list.add(printableReceipt.datetime.encodeToByteArray())
-//      list.add(DataForSendToPrinterPos58.printAndFeedLine())
-//
-//      list.add(printableReceipt.businessName.encodeToByteArray())
-//      list.add(DataForSendToPrinterPos58.printAndFeedLine())
-//      list.add(DataForSendToPrinterPos58.selectOrCancelBoldModel(1))
-//
-//      list.add("Customer Ph \n${printableReceipt.customerPhone}".encodeToByteArray())
-//      list.add(DataForSendToPrinterPos58.printAndFeedLine())
-//
-//      list.add("Customer Name \n${printableReceipt.customerName}".encodeToByteArray())
-//      list.add(DataForSendToPrinterPos58.printAndFeedLine())
+      list.add(DataForSendToPrinterPos58.initializePrinter())
+      list.add(DataForSendToPrinterPos58.selectAlignment(1))
+      list.add(DataForSendToPrinterPos58.selectCharacterSize(18))
+      list.add(printableReceipt.orderId.encodeToByteArray())
+      list.add(DataForSendToPrinterPos58.printAndFeedLine())
 
-//      list.add(DataForSendToPrinterPos58.initializePrinter())
-//      list.add(DataForSendToPrinterPos58.selectCharacterSize(1))
-//
-//      list.add("--------------------------------".encodeToByteArray())
-//      list.add(DataForSendToPrinterPos58.printAndFeedLine())
-//      list.add("Items       Qty   Price  Total  ".encodeToByteArray())
-//      list.add("--------------------------------".encodeToByteArray())
+      list.add(DataForSendToPrinterPos58.selectCharacterSize(16))
+      list.add(printableReceipt.datetime.encodeToByteArray())
+      list.add(DataForSendToPrinterPos58.printAndFeedLine())
 
-//      list.add(DataForSendToPrinterPos58.initializePrinter())
-//
-//      for (item in printableReceipt.items) {
-//        list.add(printableReceipt.addOrderItemToPrintableString(item).encodeToByteArray())
-//      }
-//
-//      list.add(DataForSendToPrinterPos58.initializePrinter())
-//      list.add(DataForSendToPrinterPos58.selectAlignment(2))
-//      list.add("\n".encodeToByteArray())
-//
-//      for (charge in printableReceipt.otherCharges) {
-//        list.add(DataForSendToPrinterPos58.selectAlignment(2))
-//        list.add("${charge.name} ${charge.value}\n".encodeToByteArray())
-//      }
-//
-//      list.add("--------------------------------".encodeToByteArray())
-//      list.add(DataForSendToPrinterPos58.printAndFeedLine())
-//      list.add("Rs. ${printableReceipt.orderTotal}".encodeToByteArray())
-//      list.add(DataForSendToPrinterPos58.printAndFeedLine())
-//      list.add("--------------------------------".encodeToByteArray())
-//      list.add(DataForSendToPrinterPos58.printAndFeedLine())
-//      list.add(DataForSendToPrinterPos58.selectOrCancelBoldModel(1))
-//      list.add(printableReceipt.deliveryType.encodeToByteArray())
-//      list.add(DataForSendToPrinterPos58.printAndFeedLine())
-//      list.add("--------------------------------".encodeToByteArray())
-//      list.add(DataForSendToPrinterPos58.printAndFeedLine())
-//
-//      if (printableReceipt.address != null) {
-//        list.add(DataForSendToPrinterPos58.initializePrinter())
-//        list.add(DataForSendToPrinterPos58.selectCharacterSize(2))
-//        list.add(printableReceipt.address.encodeToByteArray())
-//      }
+      list.add(printableReceipt.businessName.encodeToByteArray())
+      list.add(DataForSendToPrinterPos58.printAndFeedLine())
+      list.add(DataForSendToPrinterPos58.selectOrCancelBoldModel(1))
+
+      list.add("Customer Ph \n${printableReceipt.customerPhone}".encodeToByteArray())
+      list.add(DataForSendToPrinterPos58.printAndFeedLine())
+
+      list.add("Customer Name \n${printableReceipt.customerName}".encodeToByteArray())
+      list.add(DataForSendToPrinterPos58.printAndFeedLine())
+
+      list.add(DataForSendToPrinterPos58.initializePrinter())
+      list.add(DataForSendToPrinterPos58.selectCharacterSize(1))
+
+      list.add("--------------------------------".encodeToByteArray())
+      list.add(DataForSendToPrinterPos58.printAndFeedLine())
+      list.add("Items       Qty   Price  Total  ".encodeToByteArray())
+      list.add("--------------------------------".encodeToByteArray())
+
+      list.add(DataForSendToPrinterPos58.initializePrinter())
+
+      for (item in printableReceipt.items) {
+        list.add(printableReceipt.addOrderItemToPrintableString(item).encodeToByteArray())
+      }
+
+      list.add(DataForSendToPrinterPos58.initializePrinter())
+      list.add(DataForSendToPrinterPos58.selectAlignment(2))
+      list.add("\n".encodeToByteArray())
+
+      for (charge in printableReceipt.otherCharges) {
+        list.add(DataForSendToPrinterPos58.selectAlignment(2))
+        list.add("${charge.name} ${charge.value}\n".encodeToByteArray())
+      }
+
+      list.add("--------------------------------".encodeToByteArray())
+      list.add(DataForSendToPrinterPos58.printAndFeedLine())
+      list.add("Rs. ${printableReceipt.orderTotal}".encodeToByteArray())
+      list.add(DataForSendToPrinterPos58.printAndFeedLine())
+      list.add("--------------------------------".encodeToByteArray())
+      list.add(DataForSendToPrinterPos58.printAndFeedLine())
+      list.add(DataForSendToPrinterPos58.selectOrCancelBoldModel(1))
+      list.add(printableReceipt.deliveryType.encodeToByteArray())
+      list.add(DataForSendToPrinterPos58.printAndFeedLine())
+      list.add("--------------------------------".encodeToByteArray())
+      list.add(DataForSendToPrinterPos58.printAndFeedLine())
+
+      if (printableReceipt.address != null) {
+        list.add(DataForSendToPrinterPos58.initializePrinter())
+        list.add(DataForSendToPrinterPos58.selectCharacterSize(2))
+        list.add(printableReceipt.address.encodeToByteArray())
+        list.add(DataForSendToPrinterPos58.printAndFeedLine())
+      }
 
       if (qrCodeText != null) {
         list.add(DataForSendToPrinterPos58.initializePrinter())
         list.add(DataForSendToPrinterPos58.selectAlignment(1))
-        list.add(qrCodeDataToByteArray(qrCodeText, 200)!!)
+        list.add(qrCodeDataToByteArray(qrCodeText, 250)!!)
         list.add(DataForSendToPrinterPos58.printAndFeedLine())
       }
 
