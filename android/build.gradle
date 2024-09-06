@@ -51,6 +51,5 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation 'com.google.zxing:core:3.2.0'
     implementation 'com.google.code.gson:gson:2.8.7'
-    implementation 'org.fintrace.core.drivers:tspl2-driver:0.0.13'
-    implementation files('/Users/sumit/Desktop/flutter_thermal_printer/android/PosPrinterSDK.jar')
+    implementation files('PosPrinterSDK.jar')
 }
