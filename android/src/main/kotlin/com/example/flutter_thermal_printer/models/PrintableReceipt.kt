@@ -16,12 +16,12 @@ import kotlin.math.roundToInt
 
 
 class PrintableReceipt(
+    @SerializedName("address")
     val address: String?,
     @SerializedName("datetime")
     val datetime: String,
     @SerializedName("delivery_type")
     val deliveryType: String,
-    val discount: Double,
     val items: List<CartItem>,
     @SerializedName("order_id")
     val orderId: String,

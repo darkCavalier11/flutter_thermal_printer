@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_thermal_printer/flutter_thermal_printer.dart';
+import 'package:flutter_thermal_printer/models/offline_order_label.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class BluetoothPrinter {
@@ -70,16 +71,14 @@ class BluetoothPrinter {
   }
 
   Future<bool> printOfflineOrderLabel({
-    required String qrCodeText,
-    required String descText,
+    required OfflineOrderLabel offlineOrderLabel,
   }) async {
     try {
       final result = await _channel.invokeMethod<bool>(
         "printOfflineOrderLabel",
         {
-          "qr_code_text": qrCodeText,
-          "desc_text": descText,
-        },
+          'offline_order_label': offlineOrderLabel,
+        }
       );
       return result ?? false;
     } catch (e) {
