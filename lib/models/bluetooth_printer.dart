@@ -74,12 +74,10 @@ class BluetoothPrinter {
     required OfflineOrderLabel offlineOrderLabel,
   }) async {
     try {
-      final result = await _channel.invokeMethod<bool>(
-        "printOfflineOrderLabel",
-        {
-          'offline_order_label': offlineOrderLabel,
-        }
-      );
+      final result =
+          await _channel.invokeMethod<bool>("printOfflineOrderLabel", {
+        'offline_order_label': offlineOrderLabel.toJson(),
+      });
       return result ?? false;
     } catch (e) {
       log(e.toString());

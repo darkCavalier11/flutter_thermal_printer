@@ -67,7 +67,7 @@ class _MyAppState extends State<MyApp> {
             p[0].connect();
             p[0].printOfflineOrderLabel(
               offlineOrderLabel: OfflineOrderLabel(
-                qrCodeText: '4lWio0SGdkjrifokjelrjierklekn==@^()))(+_fgjnreklf',
+                qrCodeText: 'SqXXsttz6ecRsJwoa7reAdmuuk7L2TNs5iYwnbiiev3lmV+ZPlmwe6d3wVdEK+lQw7FsxcFEyu2vX7lL0gnThIg2an27Pch3dPD8cjCALro=',
                 businessName: '5 Star Bakery',
                 customerName: 'Sumit kumar pradhan',
                 customerPhone: '+91-7750860057',

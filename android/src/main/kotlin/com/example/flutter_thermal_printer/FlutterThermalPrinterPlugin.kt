@@ -10,6 +10,11 @@ import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.Canvas
+import android.graphics.drawable.BitmapDrawable
+import android.graphics.drawable.Drawable
 import android.os.Build
 import android.os.IBinder
 import android.util.Log
@@ -20,6 +25,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.app.ActivityCompat.startActivityForResult
 import androidx.core.content.ContextCompat.getSystemService
 import com.example.flutter_thermal_printer.models.BluetoothPrinter
+import com.example.flutter_thermal_printer.models.OfflineOrderLabel
 import com.example.flutter_thermal_printer.models.PrintableReceipt
 import com.google.gson.Gson
 import io.flutter.embedding.engine.plugins.FlutterPlugin
@@ -33,8 +39,11 @@ import net.posprinter.posprinterface.IMyBinder
 import net.posprinter.posprinterface.ProcessData
 import net.posprinter.posprinterface.TaskCallback
 import net.posprinter.service.PosprinterService
+import net.posprinter.utils.BitmapProcess
+import net.posprinter.utils.BitmapToByteData
 import net.posprinter.utils.DataForSendToPrinterPos58
 import net.posprinter.utils.DataForSendToPrinterTSC
+import kotlin.math.log
 
 
 /** FlutterThermalPrinterPlugin */
@@ -261,11 +270,42 @@ class FlutterThermalPrinterPlugin: FlutterPlugin, MethodCallHandler, ActivityAwa
       printableReceipt.generatePrintableByteArray(qrCodeText)
     })
   }
+  fun bitmapFromArray(pixels2d: Array<IntArray>): Bitmap? {
+    val width = pixels2d.size
+    val height = pixels2d[0].size
+    val pixels = IntArray(width * height)
+    var pixelsIndex = 0
+    for (i in 0 until width) {
+      for (j in 0 until height) {
+        pixels[pixelsIndex] = pixels2d[i][j]
+        pixelsIndex++
+      }
+    }
+    return Bitmap.createBitmap(pixels, width, height, Bitmap.Config.ARGB_8888)
+  }
 
+  fun drawableToBitmap(drawable: Drawable): Bitmap? {
+    if (drawable is BitmapDrawable) {
+      return drawable.bitmap
+    }
+
+    // Create a Bitmap of the same size as the Drawable
+    val width = drawable.intrinsicWidth
+    val height = drawable.intrinsicHeight
+    val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ALPHA_8)
+
+    // Create a Canvas to draw the Drawable onto the Bitmap
+    val canvas = Canvas(bitmap)
+    drawable.setBounds(0, 0, canvas.width, canvas.height)
+    drawable.draw(canvas)
+
+    return bitmap
+  }
   private fun printOfflineOrderLabel(call: MethodCall, result: Result) {
-    val qrCodeText = call.argument<String>("qr_code_text")
-    val descText = call.argument<String>("desc_text")
-
+    val offlineOrderLabelMap = call.argument<Map<String, Any>>("offline_order_label")
+    val gson = Gson()
+    val offlineOrderLabel = gson.fromJson(gson.toJson(offlineOrderLabelMap), OfflineOrderLabel::class.java)
+    logger(offlineOrderLabelMap!!)
     if (connectedThermalPrinter == null) {
       result.error("NO PRINTER FOUND", "connect to printer before print", "Try to connect to printer before printing.")
       return
@@ -277,46 +317,51 @@ class FlutterThermalPrinterPlugin: FlutterPlugin, MethodCallHandler, ActivityAwa
       override fun OnFailed() {
       }
     }, ProcessData {
-      // width = 4.0 inch, height = 2.0 inch
+//       width = 4.0 inch, height = 2.0 inch
       val width = 2.54 * 10 * 4.0
       val height = 2.54 * 10 * 2.0
       // padding of 50mm from all sides
       val padding = 50
 
       val list: MutableList<ByteArray> = ArrayList()
+      val packageManager: PackageManager = context.packageManager
+      val applicationInfo = packageManager.getApplicationInfo(context.packageName, 0)
+      val bitmap1 = BitmapProcess.compressBmpByYourWidth(
+        BitmapFactory.decodeResource(
+          context.resources,
+          R.drawable.splash,
+        ), 150
+      )
+
+      val logo = BitmapProcess.compressBmpByYourWidth(
+        BitmapFactory.decodeResource(
+          context.resources,
+          R.drawable.app_icon,
+        ), 150
+      )
+
       list.add(DataForSendToPrinterTSC.sizeBymm(width, height))
       list.add(DataForSendToPrinterTSC.direction(0))
       list.add(DataForSendToPrinterTSC.cls())
-      list.add(DataForSendToPrinterTSC.qrCode(550, 90, "M", 6, "A", 0, "M1", "S3", qrCodeText))
-      list.add(DataForSendToPrinterTSC.text(75, padding, "monospace", 0, 2, 1, "Changepay MMS Technology"))
-      val descSplitContent = splitLineWithMaxCharCount(descText!!, 36)
-      for (i in descSplitContent.indices) {
-        list.add(DataForSendToPrinterTSC.text(45, 100 + i*30, "monospace", 0, 1, 1, descSplitContent[i]))
-      }
+      list.add(DataForSendToPrinterTSC.bitmap(600, 40, 0, bitmap1, BitmapToByteData.BmpType.Threshold))
+      list.add(DataForSendToPrinterTSC.qrCode(60, 100, "M", 5, "A", 0, "M1", "S3", offlineOrderLabel.qrCodeText))
+      list.add(DataForSendToPrinterTSC.text(100, 25, "4", 0, 1, 2, offlineOrderLabel.businessName))
+      list.add(DataForSendToPrinterTSC.text(400, 120, "monospace", 0, 1, 1, offlineOrderLabel.customerName))
+      list.add(DataForSendToPrinterTSC.text(400, 160, "monospace", 0, 1, 1, "Mob: " + offlineOrderLabel.customerPhone))
+      list.add(DataForSendToPrinterTSC.text(400, 200, "monospace", 0, 1, 1, "Credit Issued: " + offlineOrderLabel.creditIssued))
+      list.add(DataForSendToPrinterTSC.text(400, 240, "monospace", 0, 1, 1, "Issued on: " + offlineOrderLabel.issuedOn))
+      list.add(DataForSendToPrinterTSC.text(400, 280, "monospace", 0, 1, 1, "valid till: " + offlineOrderLabel.validTill))
+      list.add(DataForSendToPrinterTSC.text(150, 350, "monospace", 0, 1, 1, offlineOrderLabel.tokenId))
+
       list.add(DataForSendToPrinterTSC.print(1, 1))
       list
     })
 
+
+
   }
 
-  private fun splitLineWithMaxCharCount(s: String, n: Int = 25): List<String> {
-    val result = mutableListOf<String>()
-    var current = String()
-    val splitArray = s.split(" ")
 
-    for (item in splitArray) {
-      if (current.length + item.length + 1 > n) {
-        result.add(current)
-        current = "$item "
-      } else {
-        current += "$item "
-      }
-    }
-    if (current.isNotEmpty()) {
-      result.add(current)
-    }
-    return result
-  }
 
 
   @RequiresApi(Build.VERSION_CODES.S)

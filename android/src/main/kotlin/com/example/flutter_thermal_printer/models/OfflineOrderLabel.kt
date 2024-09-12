@@ -20,5 +20,5 @@ class OfflineOrderLabel (
     @SerializedName("token_id")
     var tokenId: String,
 ) {
-    
+
 }
