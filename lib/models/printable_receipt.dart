@@ -82,6 +82,7 @@ class PrintableReceipt {
   final String orderId;
   final String customerPhone;
   final String orderLongId;
+  final String encrQrString;
   PrintableReceipt({
     required this.dateTime,
     required this.customerPhone,
@@ -95,6 +96,7 @@ class PrintableReceipt {
     required this.businessName,
     required this.orderId,
     required this.orderLongId,
+    required this.encrQrString,
   });
   factory PrintableReceipt.fromJson(Map<String, dynamic> json) {
     return PrintableReceipt(
@@ -126,6 +128,7 @@ class PrintableReceipt {
       printerId: json['printer_id'] ?? '',
       orderId: json['order_id'] ?? '-',
       customerPhone: json['customer_phone'] ?? '-',
+      encrQrString: json['encr_qr_string'] ?? '-',
     );
   }
 
@@ -142,6 +145,7 @@ class PrintableReceipt {
       'business_name': businessName,
       'order_id': orderId,
       'customer_phone': customerPhone,
+      'encr_qr_string': encrQrString,
     };
   }
 }
