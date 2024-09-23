@@ -241,7 +241,6 @@ class FlutterThermalPrinterPlugin: FlutterPlugin, MethodCallHandler, ActivityAwa
         list.add(DataForSendToPrinterPos58.printAndFeedLine())
         list
       })
-      result.success(true)
     } else {
       result.error("NO PRINTER FOUND", "connect to printer before print", "Try to connect to printer before printing.")
     }
