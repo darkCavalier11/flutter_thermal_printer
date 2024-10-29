@@ -30,7 +30,7 @@ class BluetoothPrinter {
   }
 
   Future<void> connect() async {
-    const bluetoothConnectPermission = Permissi;
+    const bluetoothConnectPermission = Permission.bluetoothConnect;
     final status = await bluetoothConnectPermission.request();
     if (status.isGranted || status.isLimited) {
       try {
