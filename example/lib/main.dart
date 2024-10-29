@@ -64,19 +64,20 @@ class _MyAppState extends State<MyApp> {
           onPressed: () async {
             final p = await FlutterThermalPrinter.getAllBluetoothPairedDevices;
             // await Future.delayed(Duration(seconds: 5));
-            p[0].connect();
-            p[0].printOfflineOrderLabel(
-              offlineOrderLabel: OfflineOrderLabel(
-                qrCodeText: 'SqXXsttz6ecRsJwoa7reAdmuuk7L2TNs5iYwnbiiev3lmV+ZPlmwe6d3wVdEK+lQw7FsxcFEyu2vX7lL0gnThIg2an27Pch3dPD8cjCALro=',
-                businessName: '5 Star Bakery',
-                customerName: 'Sumit kumar pradhan',
-                customerPhone: '+91-7750860057',
-                creditIssued: '50.00',
-                issuedOn: '11-09-2024',
-                validTill: '28-09-2024',
-                tokenId: '0911_24',
-              ),
-            );
+            p[1].connect();
+            // p[0].printOfflineOrderLabel(
+            //   offlineOrderLabel: OfflineOrderLabel(
+            //     qrCodeText: 'SqXXsttz6ecRsJwoa7reAdmuuk7L2TNs5iYwnbiiev3lmV+ZPlmwe6d3wVdEK+lQw7FsxcFEyu2vX7lL0gnThIg2an27Pch3dPD8cjCALro=',
+            //     businessName: '5 Star Bakery',
+            //     customerName: 'Sumit kumar pradhan',
+            //     customerPhone: '+91-7750860057',
+            //     creditIssued: '50.00',
+            //     issuedOn: '11-09-2024',
+            //     validTill: '28-09-2024',
+            //     tokenId: '0911_24',
+            //   ),
+            // );
+            p[1].printString('printableString');
             // await p[1].disconnect();
             //  status = await p[1].isConnected();
             // log('isConnected : $status');
