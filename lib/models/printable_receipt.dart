@@ -37,11 +37,10 @@ class PrintableOrderItems {
 
   factory PrintableOrderItems.fromJson(Map<String, dynamic> json) {
     return PrintableOrderItems(
-      name: json['name'] ?? '-',
-      total: (json['total'] ?? 0) * 1.00,
-      quantity: json['quantity'] ?? 0,
-      price: (json['price'] ?? 0) * 1.00
-    );
+        name: json['name'] ?? '-',
+        total: (json['total'] ?? 0) * 1.00,
+        quantity: json['quantity'] ?? 0,
+        price: (json['price'] ?? 0) * 1.00);
   }
 
   @override
@@ -71,6 +70,7 @@ class PrintableReceipt {
   final String businessName;
   final String orderId;
   final String customerPhone;
+  final String customerName;
   final String orderLongId;
   final String encrQrString;
   PrintableReceipt({
@@ -87,6 +87,7 @@ class PrintableReceipt {
     required this.orderId,
     required this.orderLongId,
     required this.encrQrString,
+    required this.customerName,
   });
   factory PrintableReceipt.fromJson(Map<String, dynamic> json) {
     return PrintableReceipt(
@@ -111,6 +112,7 @@ class PrintableReceipt {
       orderId: json['order_id'] ?? '-',
       customerPhone: json['customer_phone'] ?? '-',
       encrQrString: json['encr_qr_string'] ?? '-',
+      customerName: json['customer_name'] ?? '-',
     );
   }
 
@@ -128,6 +130,7 @@ class PrintableReceipt {
       'order_id': orderId,
       'customer_phone': customerPhone,
       'encr_qr_string': encrQrString,
+      'customer_name': customerName,
     };
   }
 }
