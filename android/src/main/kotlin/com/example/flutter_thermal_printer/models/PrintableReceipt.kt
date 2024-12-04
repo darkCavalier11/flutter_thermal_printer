@@ -37,6 +37,8 @@ class PrintableReceipt(
     val customerPhone: String,
     @SerializedName("customer_name")
     val customerName: String
+    @SerializedName("customer_note")
+    val customerNote: String?
     ) {
 
     public fun generatePrintableByteArray(qrCodeText: String? = null): MutableList<ByteArray> {
@@ -64,6 +66,13 @@ class PrintableReceipt(
         list.add(DataForSendToPrinterPos58.initializePrinter())
         list.add(DataForSendToPrinterPos58.selectCharacterSize(1))
 
+        if (qrCodeText != null) {
+            list.add(DataForSendToPrinterPos58.initializePrinter())
+            list.add(DataForSendToPrinterPos58.selectAlignment(1))
+            list.add(qrCodeDataToByteArray(qrCodeText, 250)!!)
+            list.add(DataForSendToPrinterPos58.printAndFeedLine())
+        }
+
         list.add("--------------------------------".encodeToByteArray())
         list.add(DataForSendToPrinterPos58.printAndFeedLine())
         list.add("Items       Qty   Price  Total  ".encodeToByteArray())
@@ -78,6 +87,12 @@ class PrintableReceipt(
         list.add(DataForSendToPrinterPos58.initializePrinter())
         list.add(DataForSendToPrinterPos58.selectAlignment(2))
         list.add("\n".encodeToByteArray())
+
+        if (customerNote != null) {
+            list.add(DataForSendToPrinterPos58.initializePrinter())
+            list.add(DataForSendToPrinterPos58.selectAlignment(2))
+            list.add(customerNote!.encodeToByteArray())
+        }
 
         for (charge in otherCharges) {
             list.add(DataForSendToPrinterPos58.selectAlignment(2))
@@ -100,13 +115,6 @@ class PrintableReceipt(
             list.add(DataForSendToPrinterPos58.initializePrinter())
             list.add(DataForSendToPrinterPos58.selectCharacterSize(2))
             list.add(address.encodeToByteArray())
-            list.add(DataForSendToPrinterPos58.printAndFeedLine())
-        }
-
-        if (qrCodeText != null) {
-            list.add(DataForSendToPrinterPos58.initializePrinter())
-            list.add(DataForSendToPrinterPos58.selectAlignment(1))
-            list.add(qrCodeDataToByteArray(qrCodeText, 250)!!)
             list.add(DataForSendToPrinterPos58.printAndFeedLine())
         }
 
