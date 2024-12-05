@@ -36,9 +36,9 @@ class PrintableReceipt(
     @SerializedName("customer_phone")
     val customerPhone: String,
     @SerializedName("customer_name")
-    val customerName: String
+    val customerName: String,
     @SerializedName("customer_note")
-    val customerNote: String?
+    val customerNote: String?,
     ) {
 
     public fun generatePrintableByteArray(qrCodeText: String? = null): MutableList<ByteArray> {
@@ -91,7 +91,7 @@ class PrintableReceipt(
         if (customerNote != null) {
             list.add(DataForSendToPrinterPos58.initializePrinter())
             list.add(DataForSendToPrinterPos58.selectAlignment(2))
-            list.add(customerNote!.encodeToByteArray())
+            list.add(customerNote.encodeToByteArray())
         }
 
         for (charge in otherCharges) {
