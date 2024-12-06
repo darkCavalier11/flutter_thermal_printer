@@ -91,8 +91,11 @@ class PrintableReceipt(
         if (customerNote != null) {
             list.add(DataForSendToPrinterPos58.initializePrinter())
             list.add(DataForSendToPrinterPos58.selectAlignment(2))
-            list.add(customerNote.encodeToByteArray())
+            list.add("Note: $customerNote".encodeToByteArray())
+            list.add("--------------------------------".encodeToByteArray())
+            list.add("\n".encodeToByteArray())
         }
+
 
         for (charge in otherCharges) {
             list.add(DataForSendToPrinterPos58.selectAlignment(2))
