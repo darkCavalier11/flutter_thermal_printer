@@ -92,6 +92,7 @@ class PrintableReceipt(
             list.add(DataForSendToPrinterPos58.initializePrinter())
             list.add(DataForSendToPrinterPos58.selectAlignment(2))
             list.add("Note: $customerNote".encodeToByteArray())
+            list.add("\n".encodeToByteArray())
             list.add("--------------------------------".encodeToByteArray())
             list.add("\n".encodeToByteArray())
         }
