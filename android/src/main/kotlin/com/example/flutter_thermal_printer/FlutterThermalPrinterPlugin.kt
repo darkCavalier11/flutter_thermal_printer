@@ -249,6 +249,7 @@ class FlutterThermalPrinterPlugin: FlutterPlugin, MethodCallHandler, ActivityAwa
   private fun printReceiptWithBluetoothPrinter(call: MethodCall, result: Result) {
     val printableReceiptMap = call.argument<Map<String, Any>>("printable_receipt")
     val qrCodeText = call.argument<String?>("qr_code_text")
+    val paperWidth = call.argument<Double>("paper_width")
     val gson = Gson()
     val printableReceipt = gson.fromJson(gson.toJson(printableReceiptMap), PrintableReceipt::class.java)
     logger("printReceiptWithBluetoothPrinter() with $printableReceiptMap, $qrCodeText with $connectedThermalPrinter")
@@ -266,7 +267,11 @@ class FlutterThermalPrinterPlugin: FlutterPlugin, MethodCallHandler, ActivityAwa
         result.success(false)
       }
     }, ProcessData {
-      printableReceipt.generatePrintableByteArray(qrCodeText)
+      if (paperWidth == 58.0) {
+        printableReceipt.generatePrintableByteArrayForPaperWidth58(qrCodeText)
+      } else {
+        printableReceipt.generatePrintableByteArrayForPaperWidth80(qrCodeText)
+      }
     })
   }
   fun bitmapFromArray(pixels2d: Array<IntArray>): Bitmap? {

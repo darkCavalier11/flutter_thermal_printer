@@ -1,6 +1,5 @@
 package com.example.flutter_thermal_printer.models
 
-import android.util.Log
 import com.google.gson.annotations.SerializedName
 import com.google.zxing.EncodeHintType
 import com.google.zxing.WriterException
@@ -9,6 +8,7 @@ import com.google.zxing.qrcode.encoder.ByteMatrix
 import com.google.zxing.qrcode.encoder.Encoder
 import com.google.zxing.qrcode.encoder.QRCode
 import net.posprinter.utils.DataForSendToPrinterPos58
+import net.posprinter.utils.DataForSendToPrinterPos80
 import java.lang.Integer.min
 import java.util.EnumMap
 import kotlin.math.ceil
@@ -41,7 +41,7 @@ class PrintableReceipt(
     val customerNote: String?,
     ) {
 
-    public fun generatePrintableByteArray(qrCodeText: String? = null): MutableList<ByteArray> {
+    public fun generatePrintableByteArrayForPaperWidth58(qrCodeText: String? = null): MutableList<ByteArray> {
         val list: MutableList<ByteArray> = java.util.ArrayList()
         list.add(DataForSendToPrinterPos58.initializePrinter())
         list.add(DataForSendToPrinterPos58.selectAlignment(1))
@@ -126,6 +126,94 @@ class PrintableReceipt(
         list.add(DataForSendToPrinterPos58.printAndFeedLine())
         list.add(DataForSendToPrinterPos58.printAndFeedLine())
         list.add(DataForSendToPrinterPos58.printAndFeedLine())
+        return list
+    }
+
+    public fun generatePrintableByteArrayForPaperWidth80(qrCodeText: String? = null): MutableList<ByteArray> {
+        val list: MutableList<ByteArray> = java.util.ArrayList()
+        list.add(DataForSendToPrinterPos80.initializePrinter())
+        list.add(DataForSendToPrinterPos80.selectAlignment(1))
+        list.add(DataForSendToPrinterPos80.selectCharacterSize(18))
+        list.add(orderId.encodeToByteArray())
+        list.add(DataForSendToPrinterPos80.printAndFeedLine())
+
+        list.add(DataForSendToPrinterPos80.selectCharacterSize(16))
+        list.add(datetime.encodeToByteArray())
+        list.add(DataForSendToPrinterPos80.printAndFeedLine())
+
+        list.add(businessName.encodeToByteArray())
+        list.add(DataForSendToPrinterPos80.printAndFeedLine())
+        list.add(DataForSendToPrinterPos80.selectOrCancelBoldModel(1))
+
+        list.add("Customer Ph \n${customerPhone}".encodeToByteArray())
+        list.add(DataForSendToPrinterPos80.printAndFeedLine())
+
+        list.add("Customer Name \n${customerName}".encodeToByteArray())
+        list.add(DataForSendToPrinterPos80.printAndFeedLine())
+
+        list.add(DataForSendToPrinterPos80.initializePrinter())
+        list.add(DataForSendToPrinterPos80.selectCharacterSize(1))
+
+        if (qrCodeText != null) {
+            list.add(DataForSendToPrinterPos80.initializePrinter())
+            list.add(DataForSendToPrinterPos80.selectAlignment(1))
+            list.add(qrCodeDataToByteArray(qrCodeText, 250)!!)
+            list.add(DataForSendToPrinterPos80.printAndFeedLine())
+        }
+
+        list.add("--------------------------------".encodeToByteArray())
+        list.add(DataForSendToPrinterPos80.printAndFeedLine())
+        list.add("Items       Qty   Price  Total  ".encodeToByteArray())
+        list.add("--------------------------------".encodeToByteArray())
+
+        list.add(DataForSendToPrinterPos80.initializePrinter())
+
+        for (item in items) {
+            list.add(addOrderItemToPrintableString(item).encodeToByteArray())
+        }
+
+        list.add(DataForSendToPrinterPos80.initializePrinter())
+        list.add(DataForSendToPrinterPos80.selectAlignment(2))
+        list.add("\n".encodeToByteArray())
+
+        if (customerNote != null) {
+            list.add(DataForSendToPrinterPos80.initializePrinter())
+            list.add(DataForSendToPrinterPos80.selectAlignment(2))
+            list.add("Note: $customerNote".encodeToByteArray())
+            list.add("\n".encodeToByteArray())
+            list.add("--------------------------------".encodeToByteArray())
+            list.add("\n".encodeToByteArray())
+        }
+
+
+        for (charge in otherCharges) {
+            list.add(DataForSendToPrinterPos80.selectAlignment(2))
+            list.add("${charge.name} ${charge.value}\n".encodeToByteArray())
+        }
+
+        list.add("--------------------------------".encodeToByteArray())
+        list.add(DataForSendToPrinterPos80.printAndFeedLine())
+        list.add("Rs. ${orderTotal}".encodeToByteArray())
+        list.add(DataForSendToPrinterPos80.printAndFeedLine())
+        list.add("--------------------------------".encodeToByteArray())
+        list.add(DataForSendToPrinterPos80.printAndFeedLine())
+        list.add(DataForSendToPrinterPos80.selectOrCancelBoldModel(1))
+        list.add(deliveryType.encodeToByteArray())
+        list.add(DataForSendToPrinterPos80.printAndFeedLine())
+        list.add("--------------------------------".encodeToByteArray())
+        list.add(DataForSendToPrinterPos80.printAndFeedLine())
+
+        if (address != null) {
+            list.add(DataForSendToPrinterPos80.initializePrinter())
+            list.add(DataForSendToPrinterPos80.selectCharacterSize(2))
+            list.add(address.encodeToByteArray())
+            list.add(DataForSendToPrinterPos80.printAndFeedLine())
+        }
+
+        list.add(DataForSendToPrinterPos80.printAndFeedLine())
+        list.add(DataForSendToPrinterPos80.printAndFeedLine())
+        list.add(DataForSendToPrinterPos80.printAndFeedLine())
+        list.add(DataForSendToPrinterPos80.printAndFeedLine())
         return list
     }
 
