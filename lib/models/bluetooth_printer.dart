@@ -15,6 +15,9 @@ class BluetoothPrinter {
   static const MethodChannel _channel =
       MethodChannel('flutter_thermal_printer');
 
+  static const paperWidth58 = 58.0;
+  static const paperWidth80 = 80.0;
+
   factory BluetoothPrinter.fromJson(Map<String, dynamic> json) {
     return BluetoothPrinter(
       printerAddress: json['printer_address'],
@@ -53,14 +56,18 @@ class BluetoothPrinter {
     }
   }
 
-  Future<bool> printReceipt(PrintableReceipt receipt,
-      {String? qrCodeText}) async {
+  Future<bool> printReceipt(
+    PrintableReceipt receipt, {
+    String? qrCodeText,
+    double paperWidth = BluetoothPrinter.paperWidth58,
+  }) async {
     try {
       final result = await _channel.invokeMethod<bool>(
         "printReceiptWithBluetoothPrinter",
         {
           "printable_receipt": receipt.toJson(),
           "qr_code_text": qrCodeText,
+          "paper_width": paperWidth,
         },
       );
       return result ?? false;
