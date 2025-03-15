@@ -68,11 +68,11 @@ class PrintableReceipt(
 
         if (qrCodeText != null) {
             list.add(DataForSendToPrinterPos58.initializePrinter())
+            list.add(DataForSendToPrinterPos58.printAndFeedLine())
+            list.add(DataForSendToPrinterPos58.printAndFeedLine())
+            list.add(DataForSendToPrinterPos58.printAndFeedLine())
+            list.add(DataForSendToPrinterPos58.printAndFeedLine())
             list.add(DataForSendToPrinterPos58.selectAlignment(1))
-            list.add(DataForSendToPrinterPos58.printAndFeedLine())
-            list.add(DataForSendToPrinterPos58.printAndFeedLine())
-            list.add(DataForSendToPrinterPos58.printAndFeedLine())
-            list.add(DataForSendToPrinterPos58.printAndFeedLine())
             list.add(qrCodeDataToByteArray(qrCodeText, 250)!!)
             list.add(DataForSendToPrinterPos58.printAndFeedLine())
             list.add(DataForSendToPrinterPos58.printAndFeedLine())
