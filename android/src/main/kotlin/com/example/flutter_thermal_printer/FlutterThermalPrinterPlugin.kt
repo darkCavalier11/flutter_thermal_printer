@@ -260,11 +260,12 @@ class FlutterThermalPrinterPlugin: FlutterPlugin, MethodCallHandler, ActivityAwa
     bluetoothPrintBinder?.WriteSendData(object : TaskCallback {
       override fun OnSucceed() {
         logger("printStringWithBluetoothPrinter() successfully sent data for printing")
+        result.error("Failed to print receipt", "Unknown", "Unknown")
       }
 
       override fun OnFailed() {
         logger("printStringWithBluetoothPrinter() failed to send data for printing")
-        result.success(false)
+        result.error("Failed to print receipt", "Unknown", "Unknown")
       }
     }, ProcessData {
       if (paperWidth == 58.0) {
@@ -357,7 +358,6 @@ class FlutterThermalPrinterPlugin: FlutterPlugin, MethodCallHandler, ActivityAwa
       list.add(DataForSendToPrinterTSC.text(400, 340, "2", 0, 1, 1, "valid till: " + offlineOrderLabel.validTill))
 
       list.add(DataForSendToPrinterTSC.print(1, 1))
-      list
     })
   }
 

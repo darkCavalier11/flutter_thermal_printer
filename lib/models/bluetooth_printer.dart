@@ -72,8 +72,7 @@ class BluetoothPrinter {
       );
       return result ?? false;
     } catch (e) {
-      log(e.toString());
-      return false;
+      rethrow;
     }
   }
 

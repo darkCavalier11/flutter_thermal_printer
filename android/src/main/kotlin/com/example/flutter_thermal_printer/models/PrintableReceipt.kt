@@ -147,11 +147,11 @@ class PrintableReceipt(
 
         list.add(businessName.encodeToByteArray())
         list.add(DataForSendToPrinterPos80.printAndFeedLine())
-        list.add(DataForSendToPrinterPos80.selectOrCancelBoldModel(1))
 
         list.add("Customer Ph \n${customerPhone}".encodeToByteArray())
         list.add(DataForSendToPrinterPos80.printAndFeedLine())
 
+        list.add(DataForSendToPrinterPos80.selectOrCancelBoldModel(1))
         list.add("Customer Name \n${customerName}".encodeToByteArray())
         list.add(DataForSendToPrinterPos80.printAndFeedLine())
 
